@@ -1,0 +1,96 @@
+{% block dh_github_install_modal %}
+<sw-modal
+    class="dh-github-install-modal"
+    :title="$tc('dh-github-updater.install.title')"
+    :is-loading="isInstalling"
+    variant="large"
+    @modal-close="$emit('modal-close')"
+>
+    <mt-banner variant="attention">
+        {{ $tc('dh-github-updater.install.warning') }}
+    </mt-banner>
+
+    <div class="dh-github-install-modal__repository">
+        <mt-text-field
+            v-model="repository"
+            :label="$tc('dh-github-updater.install.repositoryLabel')"
+            placeholder="https://github.com/FriendsOfShopware/FroshTools"
+            :disabled="isInstalling"
+            @keyup.enter="loadVersions"
+        />
+
+        <mt-button
+            variant="secondary"
+            :is-loading="isLoadingVersions"
+            :disabled="!repository || isInstalling"
+            @click="loadVersions"
+        >
+            {{ $tc('dh-github-updater.install.loadVersions') }}
+        </mt-button>
+    </div>
+
+    <template v-if="loadedRepository">
+        <mt-banner
+            v-if="versions.length === 0"
+            variant="info"
+        >
+            {{ $tc('dh-github-updater.install.noVersions') }}
+            <template v-if="!branchesAllowed">
+                {{ $tc('dh-github-updater.install.branchesDisabledHint') }}
+            </template>
+        </mt-banner>
+
+        <template v-else>
+            <sw-single-select
+                v-model:value="selectedKey"
+                :label="$tc('dh-github-updater.install.versionLabel')"
+                :options="versionOptions"
+                :disabled="isInstalling"
+            />
+
+            <mt-banner
+                v-if="selectedVersion && selectedVersion.type === 'branch'"
+                variant="attention"
+            >
+                {{ $tc('dh-github-updater.install.branchWarning') }}
+            </mt-banner>
+
+            <p
+                v-if="selectedVersion"
+                class="dh-github-install-modal__summary"
+            >
+                {{ $tc('dh-github-updater.install.summary', 0, {
+                    plugin: selectedVersion.pluginName,
+                    repository: loadedRepository,
+                    commit: selectedVersion.commit.substring(0, 12)
+                }) }}
+            </p>
+
+            <mt-checkbox
+                v-model:checked="activateAfterInstall"
+                :label="$tc('dh-github-updater.install.activateAfterInstall')"
+                :disabled="isInstalling"
+            />
+        </template>
+    </template>
+
+    <template #modal-footer>
+        <mt-button
+            variant="secondary"
+            :disabled="isInstalling"
+            @click="$emit('modal-close')"
+        >
+            {{ $tc('global.default.cancel') }}
+        </mt-button>
+
+        <mt-button
+            variant="primary"
+            :disabled="!canInstall"
+            :is-loading="isInstalling"
+            @click="install"
+        >
+            {{ $tc('dh-github-updater.install.submit') }}
+        </mt-button>
+    </template>
+</sw-modal>
+{% endblock %}

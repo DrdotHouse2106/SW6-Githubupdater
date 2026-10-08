@@ -1,0 +1,376 @@
+<?php declare(strict_types=1);
+
+namespace DhGithubUpdater\Service;
+
+use Composer\IO\NullIO;
+use DhGithubUpdater\Config\UpdaterConfig;
+use DhGithubUpdater\Exception\GithubUpdaterException;
+use DhGithubUpdater\Github\GitRef;
+use DhGithubUpdater\Github\GithubApiClient;
+use DhGithubUpdater\Github\RepositoryReference;
+use DhGithubUpdater\Package\CompatibilityChecker;
+use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Plugin\PluginEntity;
+use Shopware\Core\Framework\Plugin\PluginService;
+use Symfony\Component\Lock\LockFactory;
+
+/**
+ * Orchestriert Installation, Update und Update-Prüfung von GitHub-Plugins.
+ *
+ * Die eigentlichen Lebenszyklus-Aktionen (installieren, aktivieren, Update
+ * ausführen) übernimmt anschließend Shopware selbst über die regulären,
+ * ACL-geschützten Extension-Endpunkte. Es werden keine Shell-Befehle ausgeführt.
+ */
+class GithubPluginManager
+{
+    private const LOCK_NAME = 'dh-github-updater-deploy';
+
+    /**
+     * @param EntityRepository<\Shopware\Core\Framework\Plugin\PluginCollection> $pluginRepository
+     */
+    public function __construct(
+        private readonly VersionResolver $versionResolver,
+        private readonly GithubApiClient $client,
+        private readonly PluginDeployer $deployer,
+        private readonly SourceLinkStore $sourceLinkStore,
+        private readonly UpdaterConfig $config,
+        private readonly CompatibilityChecker $compatibilityChecker,
+        private readonly PluginService $pluginService,
+        private readonly EntityRepository $pluginRepository,
+        private readonly LockFactory $lockFactory,
+        private readonly LoggerInterface $logger,
+    ) {
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function listVersions(string $repositoryInput): array
+    {
+        $repository = RepositoryReference::fromUserInput($repositoryInput);
+        $this->config->getAllowList()->assertAllowed($repository);
+
+        return [
+            'repository' => $repository->getFullName(),
+            'repositoryUrl' => $repository->getUrl(),
+            'shopwareVersion' => $this->compatibilityChecker->getShopwareVersion(),
+            'branchesAllowed' => $this->config->isBranchInstallAllowed(),
+            'versions' => array_map(
+                static fn (VersionCandidate $candidate): array => $candidate->toArray(),
+                $this->versionResolver->listCompatible($repository),
+            ),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function install(string $repositoryInput, string $refName, string $refType, Context $context): array
+    {
+        $repository = RepositoryReference::fromUserInput($repositoryInput);
+        $this->config->getAllowList()->assertAllowed($repository);
+
+        return $this->locked(function () use ($repository, $refName, $refType, $context): array {
+            $candidate = $this->versionResolver->resolve($repository, $refName, $refType);
+            $pluginName = $candidate->manifest->pluginName;
+
+            if ($this->findPlugin($pluginName, $context) !== null) {
+                throw new GithubUpdaterException(\sprintf('Ein Plugin mit dem Namen "%s" ist bereits vorhanden. Bitte die Update-Funktion verwenden.', $pluginName), 409);
+            }
+
+            $package = $this->downloadAndStage($repository, $candidate);
+
+            try {
+                $this->deployer->deployNew($package);
+            } finally {
+                $this->deployer->discard($package->path);
+            }
+
+            $this->refresh($context);
+
+            $plugin = $this->findPlugin($pluginName, $context);
+            if ($plugin === null) {
+                throw new GithubUpdaterException('Das Plugin wurde abgelegt, von Shopware aber nicht erkannt. Bitte die Logs prüfen.', 500);
+            }
+
+            $this->sourceLinkStore->recordInstallation($plugin->getId(), $repository, $candidate->ref);
+
+            $this->logger->info('DhGithubUpdater: Plugin aus GitHub abgelegt.', [
+                'plugin' => $pluginName,
+                'repository' => $repository->getFullName(),
+                'ref' => $candidate->ref->name,
+                'commit' => $candidate->ref->commitSha,
+                'userId' => $this->getUserId($context),
+            ]);
+
+            return [
+                'pluginName' => $pluginName,
+                'version' => $candidate->manifest->version,
+                'ref' => $candidate->ref->name,
+                'commit' => $candidate->ref->commitSha,
+            ];
+        });
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function update(string $pluginName, string $refName, string $refType, Context $context): array
+    {
+        return $this->locked(function () use ($pluginName, $refName, $refType, $context): array {
+            $plugin = $this->requirePlugin($pluginName, $context);
+            $repository = $this->requireLinkedRepository($plugin);
+
+            $candidate = $this->versionResolver->resolve($repository, $refName, $refType);
+            $this->assertMatchesPlugin($candidate, $plugin);
+
+            if ($refType === GitRef::TYPE_TAG && $candidate->manifest->version !== null
+                && (CompatibilityChecker::compare($candidate->manifest->version, $plugin->getVersion()) ?? 0) < 0
+            ) {
+                throw new GithubUpdaterException('Ein Downgrade auf eine ältere Version wird nicht unterstützt.', 409);
+            }
+
+            $package = $this->downloadAndStage($repository, $candidate);
+
+            $backup = '';
+            try {
+                if ($package->manifest->pluginName !== $plugin->getName() || $package->manifest->pluginClass !== $plugin->getBaseClass()) {
+                    throw new GithubUpdaterException('Das Archiv enthält ein anderes Plugin als erwartet.', 422);
+                }
+
+                $backup = $this->deployer->replaceExisting($package, (string) $plugin->getPath());
+
+                try {
+                    $this->refresh($context);
+                } catch (\Throwable $e) {
+                    // Die Sicherung wird auf keinen Fall gelöscht, falls die Wiederherstellung scheitert.
+                    $restoreFrom = $backup;
+                    $backup = '';
+                    try {
+                        $this->deployer->restoreBackup($restoreFrom, $plugin->getName());
+                        $this->refresh($context);
+                    } catch (\Throwable $restoreError) {
+                        $this->logger->critical('DhGithubUpdater: Wiederherstellung fehlgeschlagen, Sicherung liegt unter ' . $restoreFrom, ['error' => $restoreError->getMessage()]);
+
+                        throw new GithubUpdaterException('Update und Wiederherstellung fehlgeschlagen. Die Sicherung liegt in custom/plugins/.dh-github-updater.', 500, $e);
+                    }
+
+                    throw new GithubUpdaterException('Shopware konnte die neue Version nicht einlesen. Der vorherige Stand wurde wiederhergestellt.', 500, $e);
+                }
+            } finally {
+                $this->deployer->discard($package->path);
+                $this->deployer->discard($backup);
+            }
+
+            $this->sourceLinkStore->recordInstallation($plugin->getId(), $repository, $candidate->ref);
+
+            $this->logger->info('DhGithubUpdater: Plugin-Dateien aus GitHub aktualisiert.', [
+                'plugin' => $pluginName,
+                'repository' => $repository->getFullName(),
+                'ref' => $candidate->ref->name,
+                'commit' => $candidate->ref->commitSha,
+                'userId' => $this->getUserId($context),
+            ]);
+
+            return [
+                'pluginName' => $pluginName,
+                'version' => $candidate->manifest->version,
+                'ref' => $candidate->ref->name,
+                'commit' => $candidate->ref->commitSha,
+                'installed' => $plugin->getInstalledAt() !== null,
+            ];
+        });
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function check(string $pluginName, Context $context): array
+    {
+        $plugin = $this->requirePlugin($pluginName, $context);
+        $link = $this->sourceLinkStore->findByPluginName($plugin->getName());
+        if ($link === null) {
+            throw new GithubUpdaterException('Für dieses Plugin ist kein GitHub-Repository hinterlegt.', 404);
+        }
+
+        $this->config->getAllowList()->assertAllowed($link['repository']);
+
+        $installedVersion = $plugin->getVersion();
+        $updates = [];
+        foreach ($this->versionResolver->listCompatible($link['repository']) as $candidate) {
+            if ($candidate->manifest->pluginName !== $plugin->getName()) {
+                continue;
+            }
+
+            if ($candidate->ref->type === GitRef::TYPE_BRANCH) {
+                // Branch-Stände nur anbieten, wenn das Plugin bereits aus einem Branch stammt.
+                if ($link['installedRefType'] === GitRef::TYPE_BRANCH && $candidate->ref->commitSha !== $link['installedCommit']) {
+                    $updates[] = $candidate->toArray();
+                }
+
+                continue;
+            }
+
+            $newer = $candidate->manifest->version !== null
+                ? CompatibilityChecker::compare($candidate->manifest->version, $installedVersion)
+                : CompatibilityChecker::compare($candidate->ref->name, $installedVersion);
+            if ($newer !== null && $newer > 0) {
+                $updates[] = $candidate->toArray();
+            }
+        }
+
+        return [
+            'pluginName' => $plugin->getName(),
+            'repository' => $link['repository']->getFullName(),
+            'repositoryUrl' => $link['repository']->getUrl(),
+            'installedVersion' => $installedVersion,
+            'installedRef' => $link['installedRef'],
+            'installedCommit' => $link['installedCommit'],
+            'updates' => $updates,
+        ];
+    }
+
+    public function link(string $pluginName, ?string $repositoryInput, Context $context): ?string
+    {
+        $plugin = $this->requirePlugin($pluginName, $context);
+
+        if ($repositoryInput === null || trim($repositoryInput) === '') {
+            $this->sourceLinkStore->unlink($plugin->getId());
+
+            return null;
+        }
+
+        $repository = RepositoryReference::fromUserInput($repositoryInput);
+        $this->config->getAllowList()->assertAllowed($repository);
+        $this->sourceLinkStore->link($plugin->getId(), $repository);
+
+        return $repository->getFullName();
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public function sources(): array
+    {
+        return $this->sourceLinkStore->all();
+    }
+
+    private function downloadAndStage(RepositoryReference $repository, VersionCandidate $candidate): StagedPackage
+    {
+        $zipFile = tempnam(sys_get_temp_dir(), 'dh-ghu-');
+        if ($zipFile === false) {
+            throw new GithubUpdaterException('Temporäre Datei konnte nicht angelegt werden.', 500);
+        }
+
+        try {
+            $this->client->downloadZipball(
+                $repository,
+                $candidate->ref->commitSha,
+                $zipFile,
+                $this->config->getMaxDownloadBytes(),
+                $this->config->getToken(),
+            );
+
+            $package = $this->deployer->stage($zipFile);
+        } finally {
+            @unlink($zipFile);
+        }
+
+        if ($package->manifest->pluginName !== $candidate->manifest->pluginName
+            || $package->manifest->pluginClass !== $candidate->manifest->pluginClass
+        ) {
+            $this->deployer->discard($package->path);
+
+            throw new GithubUpdaterException('Der Archivinhalt stimmt nicht mit der geprüften Version überein.', 422);
+        }
+
+        return $package;
+    }
+
+    private function assertMatchesPlugin(VersionCandidate $candidate, PluginEntity $plugin): void
+    {
+        if ($candidate->manifest->pluginName !== $plugin->getName() || $candidate->manifest->pluginClass !== $plugin->getBaseClass()) {
+            throw new GithubUpdaterException(\sprintf(
+                'Das Repository enthält das Plugin "%s" und nicht "%s".',
+                $candidate->manifest->pluginName,
+                $plugin->getName(),
+            ), 422);
+        }
+    }
+
+    private function requireLinkedRepository(PluginEntity $plugin): RepositoryReference
+    {
+        $link = $this->sourceLinkStore->findByPluginName($plugin->getName());
+        if ($link === null) {
+            throw new GithubUpdaterException('Für dieses Plugin ist kein GitHub-Repository hinterlegt.', 404);
+        }
+
+        $this->config->getAllowList()->assertAllowed($link['repository']);
+
+        return $link['repository'];
+    }
+
+    private function requirePlugin(string $pluginName, Context $context): PluginEntity
+    {
+        if (!preg_match('/^[A-Za-z][A-Za-z0-9_]{0,99}$/', $pluginName)) {
+            throw new GithubUpdaterException('Ungültiger Plugin-Name.');
+        }
+
+        $plugin = $this->findPlugin($pluginName, $context);
+        if ($plugin === null) {
+            throw new GithubUpdaterException('Plugin nicht gefunden.', 404);
+        }
+
+        return $plugin;
+    }
+
+    private function findPlugin(string $pluginName, Context $context): ?PluginEntity
+    {
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('name', $pluginName))->setLimit(1);
+
+        /** @var PluginEntity|null $plugin */
+        $plugin = $this->pluginRepository->search($criteria, $context)->first();
+
+        return $plugin;
+    }
+
+    private function refresh(Context $context): void
+    {
+        $errors = $this->pluginService->refreshPlugins($context, new NullIO());
+        foreach ($errors as $error) {
+            $this->logger->warning('DhGithubUpdater: Fehler beim Einlesen der Plugins.', ['error' => $error->getMessage()]);
+        }
+    }
+
+    /**
+     * @template T
+     *
+     * @param callable(): T $callback
+     *
+     * @return T
+     */
+    private function locked(callable $callback): mixed
+    {
+        $lock = $this->lockFactory->createLock(self::LOCK_NAME, 600);
+        if (!$lock->acquire()) {
+            throw new GithubUpdaterException('Es läuft bereits eine Installation oder ein Update. Bitte kurz warten.', 409);
+        }
+
+        try {
+            return $callback();
+        } finally {
+            $lock->release();
+        }
+    }
+
+    private function getUserId(Context $context): ?string
+    {
+        $source = $context->getSource();
+
+        return $source instanceof \Shopware\Core\Framework\Api\Context\AdminApiSource ? $source->getUserId() : null;
+    }
+}

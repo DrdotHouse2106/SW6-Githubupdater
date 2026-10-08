@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+
+    <card>
+        <title>Security</title>
+        <title lang="de-DE">Sicherheit</title>
+
+        <input-field type="bool">
+            <name>adminOnly</name>
+            <label>Only administrators may use the updater</label>
+            <label lang="de-DE">Nur Administratoren dürfen den Updater verwenden</label>
+            <helpText>If disabled, users with the ACL privileges "system.plugin_maintain" and "system.plugin_upload" may also use it.</helpText>
+            <helpText lang="de-DE">Wenn deaktiviert, dürfen auch Benutzer mit den ACL-Rechten "system.plugin_maintain" und "system.plugin_upload" den Updater nutzen.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="textarea">
+            <name>allowedRepositories</name>
+            <label>Allowed repositories</label>
+            <label lang="de-DE">Erlaubte Repositories</label>
+            <helpText>One entry per line: "owner/repository" or "owner/*". Empty = all public repositories are allowed.</helpText>
+            <helpText lang="de-DE">Ein Eintrag pro Zeile: "owner/repository" oder "owner/*". Leer = alle öffentlichen Repositories sind erlaubt.</helpText>
+            <placeholder>FriendsOfShopware/*
+shopware/SwagPayPal</placeholder>
+        </input-field>
+
+        <input-field type="bool">
+            <name>allowBranches</name>
+            <label>Allow installation from branches</label>
+            <label lang="de-DE">Installation aus Branches erlauben</label>
+            <helpText>Branches are not fixed releases and may contain unfinished code. Tags are always preferred.</helpText>
+            <helpText lang="de-DE">Branches sind keine festen Releases und können unfertigen Code enthalten. Tags werden immer bevorzugt.</helpText>
+            <defaultValue>false</defaultValue>
+        </input-field>
+    </card>
+
+    <card>
+        <title>GitHub</title>
+        <title lang="de-DE">GitHub</title>
+
+        <input-field type="password">
+            <name>githubToken</name>
+            <label>GitHub token (optional)</label>
+            <label lang="de-DE">GitHub-Token (optional)</label>
+            <helpText>Raises the API limit from 60 to 5000 requests per hour. Use a fine-grained token with read-only access to public repositories only.</helpText>
+            <helpText lang="de-DE">Erhöht das API-Limit von 60 auf 5000 Anfragen pro Stunde. Bitte ein Fine-grained-Token nur mit Lesezugriff auf öffentliche Repositories verwenden.</helpText>
+        </input-field>
+
+        <input-field type="int">
+            <name>maxDownloadSizeMb</name>
+            <label>Maximum download size (MB)</label>
+            <label lang="de-DE">Maximale Downloadgröße (MB)</label>
+            <defaultValue>50</defaultValue>
+            <min>1</min>
+            <max>500</max>
+        </input-field>
+
+        <input-field type="int">
+            <name>maxTagsToCheck</name>
+            <label>Number of newest tags to check</label>
+            <label lang="de-DE">Anzahl der neuesten Tags, die geprüft werden</label>
+            <helpText>Each tag costs one API request (results are cached).</helpText>
+            <helpText lang="de-DE">Jeder Tag kostet eine API-Anfrage (Ergebnisse werden zwischengespeichert).</helpText>
+            <defaultValue>15</defaultValue>
+            <min>1</min>
+            <max>50</max>
+        </input-field>
+    </card>
+</config>

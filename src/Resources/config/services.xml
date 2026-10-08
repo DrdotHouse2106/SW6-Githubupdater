@@ -1,0 +1,58 @@
+<?xml version="1.0" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <defaults autowire="false" autoconfigure="false" public="false"/>
+
+        <service id="DhGithubUpdater\Github\GithubApiClient"/>
+
+        <service id="DhGithubUpdater\Package\CompatibilityChecker">
+            <argument>%kernel.shopware_version%</argument>
+        </service>
+
+        <service id="DhGithubUpdater\Package\SafeZipExtractor"/>
+
+        <service id="DhGithubUpdater\Config\UpdaterConfig">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
+        <service id="DhGithubUpdater\Service\PluginDeployer">
+            <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="DhGithubUpdater\Package\SafeZipExtractor"/>
+        </service>
+
+        <service id="DhGithubUpdater\Service\SourceLinkStore">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="DhGithubUpdater\Service\VersionResolver">
+            <argument type="service" id="DhGithubUpdater\Github\GithubApiClient"/>
+            <argument type="service" id="DhGithubUpdater\Package\CompatibilityChecker"/>
+            <argument type="service" id="DhGithubUpdater\Config\UpdaterConfig"/>
+            <argument type="service" id="cache.object"/>
+        </service>
+
+        <service id="DhGithubUpdater\Service\GithubPluginManager">
+            <argument type="service" id="DhGithubUpdater\Service\VersionResolver"/>
+            <argument type="service" id="DhGithubUpdater\Github\GithubApiClient"/>
+            <argument type="service" id="DhGithubUpdater\Service\PluginDeployer"/>
+            <argument type="service" id="DhGithubUpdater\Service\SourceLinkStore"/>
+            <argument type="service" id="DhGithubUpdater\Config\UpdaterConfig"/>
+            <argument type="service" id="DhGithubUpdater\Package\CompatibilityChecker"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
+            <argument type="service" id="plugin.repository"/>
+            <argument type="service" id="lock.factory"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="DhGithubUpdater\Controller\GithubUpdaterController" public="true">
+            <argument type="service" id="DhGithubUpdater\Service\GithubPluginManager"/>
+            <argument type="service" id="DhGithubUpdater\Config\UpdaterConfig"/>
+            <argument type="service" id="logger"/>
+            <argument>%shopware.deployment.runtime_extension_management%</argument>
+            <tag name="controller.service_arguments"/>
+        </service>
+    </services>
+</container>

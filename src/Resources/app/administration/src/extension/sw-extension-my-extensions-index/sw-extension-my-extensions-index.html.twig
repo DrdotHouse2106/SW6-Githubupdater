@@ -1,0 +1,17 @@
+{% block sw_extension_my_extensions_index_smart_bar_actions_file_upload %}
+    {% parent %}
+
+    <mt-button
+        v-if="dhGithubUpdaterAllowed"
+        class="dh-github-updater__install-button"
+        variant="secondary"
+        @click="showDhGithubInstallModal = true"
+    >
+        {{ $tc('dh-github-updater.install.button') }}
+    </mt-button>
+
+    <dh-github-install-modal
+        v-if="showDhGithubInstallModal"
+        @modal-close="showDhGithubInstallModal = false"
+    />
+{% endblock %}

@@ -1,0 +1,31 @@
+{
+    "dh-github-updater": {
+        "general": {
+            "unknownError": "Unbekannter Fehler. Details stehen im Shopware-Log."
+        },
+        "install": {
+            "button": "Aus GitHub installieren",
+            "title": "Plugin aus GitHub installieren",
+            "warning": "Plugins enthalten ausführbaren Code mit vollem Zugriff auf deinen Shop. Installiere nur Plugins aus Quellen, denen du vertraust.",
+            "repositoryLabel": "GitHub-Repository (URL oder owner/repository)",
+            "loadVersions": "Versionen laden",
+            "noVersions": "Es wurden keine mit dieser Shopware-Version kompatiblen Versionen gefunden.",
+            "branchesDisabledHint": "Die Installation aus Branches ist in der Plugin-Konfiguration deaktiviert.",
+            "versionLabel": "Version",
+            "branchWarning": "Branches sind keine festen Releases und können unfertigen Code enthalten.",
+            "summary": "Plugin {plugin} aus {repository} (Commit {commit}) wird installiert.",
+            "activateAfterInstall": "Nach dem Herunterladen direkt installieren und aktivieren",
+            "submit": "Installieren",
+            "success": "Plugin \"{name}\" wurde aus GitHub installiert."
+        },
+        "card": {
+            "notLinked": "nicht verknüpft",
+            "link": "Repository verknüpfen",
+            "edit": "Ändern",
+            "check": "Updates prüfen",
+            "update": "Aktualisieren",
+            "upToDate": "{name} ist auf dem neuesten Stand.",
+            "updateSuccess": "{name} wurde aus GitHub aktualisiert."
+        }
+    }
+}

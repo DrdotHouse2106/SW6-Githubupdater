@@ -1,0 +1,19 @@
+.dh-github-install-modal {
+    .dh-github-install-modal__repository {
+        display: flex;
+        gap: 16px;
+        align-items: flex-end;
+        margin: 16px 0;
+
+        .mt-field,
+        .sw-field {
+            flex: 1;
+            margin-bottom: 0;
+        }
+    }
+
+    .dh-github-install-modal__summary {
+        margin: 16px 0;
+        word-break: break-word;
+    }
+}

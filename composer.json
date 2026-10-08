@@ -1,0 +1,49 @@
+{
+    "name": "drdothouse/dh-github-updater",
+    "description": "Installiert und aktualisiert Shopware-6-Plugins sicher direkt aus GitHub-Repositories.",
+    "type": "shopware-platform-plugin",
+    "version": "1.0.0",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "DrdotHouse"
+        }
+    ],
+    "require": {
+        "php": ">=8.2",
+        "shopware/core": "~6.6.0 || ~6.7.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.5 || ^11.0"
+    },
+    "extra": {
+        "shopware-plugin-class": "DhGithubUpdater\\DhGithubUpdater",
+        "label": {
+            "de-DE": "GitHub Plugin-Updater",
+            "en-GB": "GitHub plugin updater"
+        },
+        "description": {
+            "de-DE": "Installiert und aktualisiert Plugins sicher direkt aus GitHub.",
+            "en-GB": "Securely installs and updates plugins directly from GitHub."
+        },
+        "manufacturerLink": {
+            "de-DE": "https://github.com/DrdotHouse2106/SW6-Githubupdater",
+            "en-GB": "https://github.com/DrdotHouse2106/SW6-Githubupdater"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "DhGithubUpdater\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "DhGithubUpdater\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "symfony/runtime": false
+        }
+    }
+}
