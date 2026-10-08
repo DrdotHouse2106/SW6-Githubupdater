@@ -19,8 +19,8 @@
             <name>allowedRepositories</name>
             <label>Allowed repositories</label>
             <label lang="de-DE">Erlaubte Repositories</label>
-            <helpText>One entry per line: "owner/repository" or "owner/*". Empty = all public repositories are allowed.</helpText>
-            <helpText lang="de-DE">Ein Eintrag pro Zeile: "owner/repository" oder "owner/*". Leer = alle öffentlichen Repositories sind erlaubt.</helpText>
+            <helpText>One entry per line: "owner/repository" or "owner/*". Empty = all repositories are allowed (private ones only with a token).</helpText>
+            <helpText lang="de-DE">Ein Eintrag pro Zeile: "owner/repository" oder "owner/*". Leer = alle Repositories sind erlaubt (private nur mit Token).</helpText>
             <placeholder>FriendsOfShopware/*
 shopware/SwagPayPal</placeholder>
         </input-field>
@@ -43,8 +43,8 @@ shopware/SwagPayPal</placeholder>
             <name>githubToken</name>
             <label>GitHub token (optional)</label>
             <label lang="de-DE">GitHub-Token (optional)</label>
-            <helpText>Raises the API limit from 60 to 5000 requests per hour. Use a fine-grained token with read-only access to public repositories only.</helpText>
-            <helpText lang="de-DE">Erhöht das API-Limit von 60 auf 5000 Anfragen pro Stunde. Bitte ein Fine-grained-Token nur mit Lesezugriff auf öffentliche Repositories verwenden.</helpText>
+            <helpText>Required for private repositories, also raises the API limit from 60 to 5000 requests per hour. Use a fine-grained token restricted to the required repositories with only "Contents: Read-only". The token is sent exclusively to api.github.com.</helpText>
+            <helpText lang="de-DE">Erforderlich für private Repositories, erhöht außerdem das API-Limit von 60 auf 5000 Anfragen pro Stunde. Bitte ein Fine-grained-Token verwenden, das nur auf die benötigten Repositories beschränkt ist und nur das Recht "Contents: Read-only" hat. Das Token wird ausschließlich an api.github.com gesendet.</helpText>
         </input-field>
 
         <input-field type="int">

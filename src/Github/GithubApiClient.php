@@ -157,7 +157,7 @@ class GithubApiClient
         $status = $response->getStatusCode();
 
         if ($status === 404) {
-            throw new GithubUpdaterException('Repository nicht gefunden oder nicht öffentlich.', 404);
+            throw new GithubUpdaterException('Repository nicht gefunden oder kein Zugriff. Für private Repositories muss ein GitHub-Token mit Lesezugriff hinterlegt sein.', 404);
         }
         $this->assertSuccessful($status);
 
@@ -253,7 +253,7 @@ class GithubApiClient
     private function assertSuccessful(int $status): void
     {
         if ($status === 401) {
-            throw new GithubUpdaterException('Das hinterlegte GitHub-Token ist ungültig.', 502);
+            throw new GithubUpdaterException('Das hinterlegte GitHub-Token ist ungültig oder abgelaufen.', 502);
         }
 
         if ($status === 403 || $status === 429) {

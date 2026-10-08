@@ -2,7 +2,7 @@
 
 🇩🇪 [Deutsche Version](README.md)
 
-Install and update Shopware 6 plugins directly from public GitHub repositories – without a
+Install and update Shopware 6 plugins directly from public or private GitHub repositories – without a
 Shopware account or the plugin store. It offers the same features as
 [yaetcom/ShopwareGitHubUpdater](https://github.com/yaetcom/ShopwareGitHubUpdater) but was
 rewritten from scratch with a focus on security.
@@ -51,7 +51,24 @@ bin/console cache:clear
 
 See *Settings → Extensions → GitHub plugin updater*: admins only (default on), allowed
 repositories (`owner/repo` or `owner/*`), allow branches (default off), GitHub token
-(optional, sent only to `api.github.com`), max download size, number of tags to check.
+(required for private repositories, sent only to `api.github.com`), max download size, number of tags to check.
+
+## Private repositories
+
+Set a GitHub token in the plugin configuration. Create a fine-grained token
+(*Settings → Developer settings → Fine-grained tokens*) with:
+
+- **Repository access**: only the repositories you need
+- **Permissions**: only **Contents: Read-only** (Metadata is added automatically)
+- an **expiration date**
+
+The token is sent exclusively to `api.github.com`; GitHub redirects the download to
+`codeload.github.com` with a short-lived archive key. It is never logged, but it is stored in
+`system_config`, so keep its permissions minimal.
+
+To install this updater itself from a private repository, clone with a token and remove it
+from the remote afterwards, or download the ZIP from GitHub and upload the folder as
+`custom/plugins/DhGithubUpdater`.
 
 ## Development
 

@@ -3,7 +3,7 @@
 🇬🇧 [English version](README.en.md)
 
 Mit diesem Plugin installierst und aktualisierst du Shopware-6-Plugins direkt aus
-öffentlichen GitHub-Repositories – ohne Shopware-Account und ohne Plugin-Store.
+GitHub-Repositories – öffentlich oder privat – ohne Shopware-Account und ohne Plugin-Store.
 Es bietet die gleichen Funktionen wie
 [yaetcom/ShopwareGitHubUpdater](https://github.com/yaetcom/ShopwareGitHubUpdater),
 wurde aber von Grund auf neu und mit Fokus auf Sicherheit geschrieben.
@@ -78,9 +78,53 @@ Update dieses Plugins muss die Administration daher einmal neu gebaut werden
 | Nur Administratoren | an | Wenn aus, reichen die ACL-Rechte `system.plugin_maintain` + `system.plugin_upload`. |
 | Erlaubte Repositories | leer (= alle) | Ein Eintrag pro Zeile: `owner/repo` oder `owner/*`. **Empfohlen.** |
 | Installation aus Branches | aus | Branches sind keine festen Releases. Tags werden immer bevorzugt. |
-| GitHub-Token | leer | Erhöht das API-Limit von 60 auf 5000 Anfragen/Stunde. Fine-grained-Token mit reinem Lesezugriff verwenden. |
+| GitHub-Token | leer | Nötig für private Repositories, erhöht außerdem das API-Limit von 60 auf 5000 Anfragen/Stunde. Siehe [Private Repositories](#private-repositories). |
 | Maximale Downloadgröße | 50 MB | Schutz vor übergroßen Archiven. |
 | Anzahl geprüfter Tags | 15 | Jeder Tag kostet eine API-Anfrage (Ergebnisse werden pro Commit zwischengespeichert). |
+
+## Private Repositories
+
+Plugins aus privaten Repositories lassen sich installieren und aktualisieren, sobald in der
+Plugin-Konfiguration ein GitHub-Token mit Lesezugriff hinterlegt ist.
+
+So erstellst du ein passendes Token (GitHub → *Settings → Developer settings →
+Personal access tokens → Fine-grained tokens → Generate new token*):
+
+1. **Resource owner**: Benutzer bzw. Organisation, der die Repositories gehören.
+2. **Repository access**: *Only select repositories* und nur die benötigten Repos auswählen.
+3. **Permissions → Repository permissions**: nur **Contents: Read-only**
+   (*Metadata: Read-only* wird automatisch gesetzt). Keine weiteren Rechte vergeben.
+4. **Expiration**: ein Ablaufdatum setzen (z. B. 1 Jahr) und rechtzeitig erneuern.
+5. Token in Shopware unter *Einstellungen → Erweiterungen → GitHub Plugin-Updater →
+   GitHub-Token* eintragen und speichern.
+
+Wie das Token geschützt wird:
+
+- Es wird **ausschließlich an `api.github.com`** gesendet. Den eigentlichen Download leitet
+  GitHub auf `codeload.github.com` mit einem kurzlebigen, nur für dieses Archiv gültigen
+  Schlüssel weiter – das Token selbst verlässt dabei nicht den API-Aufruf.
+- Es wird nie geloggt und nie an die Administration zurückgegeben (außer im
+  Passwortfeld der Konfiguration).
+- Es liegt wie alle Plugin-Einstellungen in der Tabelle `system_config`. Wer Zugriff auf die
+  Datenbank oder Admin-Rechte für die Systemeinstellungen hat, kann es auslesen – deshalb
+  nur Lesezugriff und nur die nötigen Repositories freigeben.
+
+Zusätzlich empfiehlt sich die **Repository-Positivliste**, z. B. `DeinName/*`.
+
+### Diesen Updater aus einem privaten Repository installieren
+
+Ein einfaches `git clone` benötigt dann eine Anmeldung. Entweder mit Token klonen und es
+anschließend wieder aus der Git-Konfiguration entfernen:
+
+```bash
+cd <shopware>/custom/plugins
+git clone https://<TOKEN>@github.com/DrdotHouse2106/SW6-Githubupdater.git DhGithubUpdater
+git -C DhGithubUpdater remote set-url origin https://github.com/DrdotHouse2106/SW6-Githubupdater.git
+```
+
+oder auf GitHub *Code → Download ZIP* wählen, entpacken und den Ordner als
+`custom/plugins/DhGithubUpdater` hochladen. Danach wie unter [Installation](#installation)
+beschrieben fortfahren.
 
 ## Nutzung
 

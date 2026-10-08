@@ -58,6 +58,44 @@ class GithubApiClientTest extends TestCase
         static::assertStringNotContainsString('ghp_secrettoken1234567890', $codeloadHeaders);
     }
 
+    /**
+     * Privates Repository: Token geht an die API, GitHub leitet mit einem
+     * kurzlebigen Archiv-Schlüssel auf codeload weiter.
+     */
+    public function testDownloadFromPrivateRepository(): void
+    {
+        $seen = [];
+        $client = new GithubApiClient(new MockHttpClient(function (string $method, string $url, array $options) use (&$seen) {
+            $seen[$url] = implode("\n", $options['headers'] ?? []);
+
+            if (str_starts_with($url, 'https://api.github.com/')) {
+                if (!str_contains($seen[$url], 'Authorization: Bearer github_pat_private1234567890')) {
+                    return new MockResponse('', ['http_code' => 404]);
+                }
+
+                return new MockResponse('', ['http_code' => 302, 'response_headers' => ['Location: https://codeload.github.com/owner/private/legacy.zip/' . self::SHA . '?token=SHORTLIVED']]);
+            }
+
+            return new MockResponse('PRIVATEZIP');
+        }));
+
+        $target = tempnam(sys_get_temp_dir(), 'dh-ghu-');
+        $client->downloadZipball(RepositoryReference::fromFullName('owner/private'), self::SHA, $target, 1024, 'github_pat_private1234567890');
+
+        static::assertSame('PRIVATEZIP', file_get_contents($target));
+        unlink($target);
+        static::assertStringNotContainsString('github_pat_private1234567890', $seen['https://codeload.github.com/owner/private/legacy.zip/' . self::SHA . '?token=SHORTLIVED']);
+    }
+
+    public function testPrivateRepositoryWithoutTokenGivesHint(): void
+    {
+        $client = new GithubApiClient(new MockHttpClient([new MockResponse('', ['http_code' => 404])]));
+
+        $this->expectException(GithubUpdaterException::class);
+        $this->expectExceptionMessageMatches('/GitHub-Token/');
+        $client->listTags(RepositoryReference::fromFullName('owner/private'), null);
+    }
+
     public function testBlocksRedirectToForeignHost(): void
     {
         $client = new GithubApiClient(new MockHttpClient([
