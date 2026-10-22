@@ -40,6 +40,21 @@ class GithubUpdaterController
         ));
     }
 
+    /**
+     * Prüft ein Repository, ohne etwas herunterzuladen oder zu installieren.
+     */
+    #[Route(path: '/api/_action/dh-github-updater/test-connection', name: 'api.action.dh_github_updater.test_connection', methods: ['GET'])]
+    public function testConnection(Request $request, Context $context): JsonResponse
+    {
+        $pluginName = $request->query->getString('pluginName');
+
+        return $this->handle($context, false, fn (): array => $this->manager->testConnection(
+            $request->query->getString('repository'),
+            $pluginName !== '' ? $pluginName : null,
+            $context,
+        ));
+    }
+
     #[Route(path: '/api/_action/dh-github-updater/sources', name: 'api.action.dh_github_updater.sources', methods: ['GET'])]
     public function sources(Context $context): JsonResponse
     {

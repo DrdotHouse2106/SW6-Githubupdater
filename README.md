@@ -15,7 +15,7 @@ wurde aber von Grund auf neu und mit Fokus auf Sicherheit geschrieben.
 - **Nur kompatible Versionen**: Es werden nur Tags (optional Branches) angeboten, deren
   `composer.json` laut `require.shopware/core` zur laufenden Shopware-Version passt
   (echte Semver-Prüfung mit `composer/semver`).
-- **Updates**: Auf jeder Plugin-Karte kann ein GitHub-Repository verknüpft werden.
+- **Updates**: Jedes installierte Plugin kann über das „…“-Menü seiner Karte mit einem GitHub-Repository verknüpft werden (inkl. „Verbindung testen“).
   „Updates prüfen“ zeigt neuere Versionen, „Aktualisieren“ spielt sie ein. Anschließend
   läuft der reguläre Shopware-Update-Prozess (inkl. Migrationen).
 - **Branch-Updates**: Bei Installation aus einem Branch wird der Commit gespeichert, neue
@@ -146,9 +146,35 @@ beschrieben fortfahren.
 1. **Installieren**: *Erweiterungen → Meine Erweiterungen → „Aus GitHub installieren“*,
    z. B. `https://github.com/FriendsOfShopware/FroshTools` eingeben → „Versionen laden“
    → Version wählen → „Installieren“.
-2. **Repository verknüpfen** (für bereits vorhandene Plugins): Auf der Plugin-Karte
-   „Repository verknüpfen“ klicken und die GitHub-URL speichern.
-3. **Aktualisieren**: Auf der Plugin-Karte „Updates prüfen“ → Version wählen → „Aktualisieren“.
+2. **Mit GitHub verknüpfen** (für bereits vorhandene Plugins – auch solche aus dem Store
+   oder per ZIP hochgeladene): Auf der Plugin-Karte das **„…“-Menü** öffnen →
+   **„Mit GitHub verknüpfen …“**. Im Dialog die Repository-URL eingeben
+   (`https://github.com/owner/repository` oder `owner/repository`), optional
+   **„Verbindung testen“** und dann **„Speichern“**.
+3. **Aktualisieren**: Verknüpfte Plugins zeigen auf der Karte einen kleinen GitHub-Bereich
+   (Repository-Link und installierte Version). Dort „Auf Updates prüfen“ klicken – ist ein
+   Update verfügbar, erscheint es hervorgehoben mit dem Button **„Aktualisieren“**.
+   Nicht verknüpfte Plugins zeigen keinen GitHub-Bereich.
+4. **Verknüpfung bearbeiten oder entfernen**: im „…“-Menü über
+   „GitHub-Verknüpfung bearbeiten …“ bzw. „GitHub-Verknüpfung entfernen“. Das Entfernen
+   löscht nur die Verknüpfung, nicht das Plugin.
+
+### Verbindung testen
+
+Im Verknüpfen-Dialog (vor dem Speichern) und im „…“-Menü verknüpfter Plugins gibt es
+**„Verbindung testen“**. Der Test läuft auf dem Server, liest nur über die GitHub-API und
+installiert nichts. Jeder Punkt wird mit ✓ (ok), ⚠ (Hinweis) oder ✗ (Fehler) angezeigt:
+
+| Prüfpunkt | Was geprüft wird |
+|---|---|
+| Eingabe | Ist die Eingabe eine gültige GitHub-Repository-Adresse? |
+| Erlaubte Repositories | Ist das Repository laut Konfiguration „Erlaubte Repositories“ zugelassen? |
+| Zugriff | Ist das Repository erreichbar (öffentlich bzw. mit Token)? Erkannt werden „nicht gefunden / privat ohne Token“, „Token ungültig“ und „Ratenlimit erreicht“. |
+| Plugin | Liegt im Standard-Branch eine gültige `composer.json`, und passen Plugin-Name und Plugin-Klasse zum installierten Plugin? |
+| Releases | Wie viele Tags/Releases mit Versionsnummer gibt es? Ohne Releases kommt der Hinweis „Release anlegen oder Branches erlauben“. |
+| Kompatibilität | Welche Versionen sind mit der laufenden Shopware-Version kompatibel? Die neueste wird genannt, inkl. Hinweis, ob ein Update verfügbar ist. |
+
+Der Test verbraucht einige GitHub-API-Anfragen (ohne Token sind 60 pro Stunde erlaubt).
 
 ## Einschränkungen
 
@@ -169,6 +195,7 @@ Alle unter `/api/_action/dh-github-updater/` (Admin-API, OAuth):
 | GET | `versions?repository=<url>` | `system.plugin_maintain` |
 | GET | `sources` | `system.plugin_maintain` |
 | GET | `check/{pluginName}` | `system.plugin_maintain` |
+| GET | `test-connection?repository=<url>&pluginName=<name>` (nur lesend) | `system.plugin_maintain` |
 | POST | `install` (`repository`, `ref`, `type`) | `system.plugin_maintain`, `system.plugin_upload` |
 | POST | `update/{pluginName}` (`ref`, `type`) | `system.plugin_maintain`, `system.plugin_upload` |
 | POST | `link/{pluginName}` (`repository`, leer = entfernen) | `system.plugin_maintain`, `system.plugin_upload` |
@@ -181,25 +208,107 @@ vendor/bin/phpunit
 ```
 
 Die Unit-Tests decken u. a. Zip-Slip, Symlinks, Zip-Bomben, URL-Validierung,
-Redirect-Schutz, Token-Weitergabe und Pfad-Prüfungen ab.
+Redirect-Schutz, Token-Weitergabe, Pfad-Prüfungen und „Verbindung testen“ ab.
 
 ## Häufige Probleme und Lösungen
 
 Hier sammeln wir Hürden, die bei Installation und Betrieb tatsächlich aufgetreten sind. **Neue Probleme bitte ergänzen** (oder als Issue melden), damit andere nicht lange suchen müssen.
 
-| Problem | Ursache | Lösung |
-|---|---|---|
-| Nach dem ZIP-Upload fehlt der Button „Aus GitHub installieren“ | Plugin nur hochgeladen, nicht installiert/aktiviert, oder Administration noch im Browser-Cache | Plugin **installieren und aktivieren**, Administration mit F5 neu laden. Hilft das nicht: `bin/console assets:install` und `bin/console cache:clear` |
-| Button fehlt weiterhin, in der Browser-Konsole 404 auf `/bundles/dhgithubupdater/...` | Assets wurden nicht nach `public/bundles` kopiert | `bin/console assets:install` ausführen |
-| „Keine kompatiblen Versionen gefunden“ | Das Repository hat **keine Tags/Releases** – der Updater bietet nur Tags an | Auf GitHub ein Release anlegen: *Releases → Draft a new release → Tag `v1.0.0` eintippen → „Create new tag on publish“ → Publish*. Alternativ in der Konfiguration „Installation aus Branches“ aktivieren |
-| Ein Release erscheint nicht in der Liste | `require.shopware/core` in der `composer.json` dieses Tags passt nicht zur Shopware-Version, oder der Tag ist keine Versionsnummer (z. B. `final`) | Tags wie `v1.2.0` verwenden und die Shopware-Angabe in der `composer.json` prüfen |
-| „Das Repository enthält kein Shopware-6-Plugin“ | `composer.json` fehlt im Hauptverzeichnis des Repos oder `type` ist nicht `shopware-platform-plugin` | `composer.json` mit `"type": "shopware-platform-plugin"` und `extra.shopware-plugin-class` ins Repo-Hauptverzeichnis |
-| Privates Repository: „nicht gefunden“ | Ohne Token sieht GitHub private Repos nicht | In der Konfiguration ein **GitHub-Token** (nur Leserechte) hinterlegen, siehe „Private Repositories“ |
-| „Die Erweiterungsverwaltung ist in dieser Umgebung deaktiviert“ | `shopware.deployment.runtime_extension_management: false` (z. B. bei Cluster-/Cloud-Setups) | Plugins dort per Composer/Deployment installieren – der Updater respektiert diese Sperre absichtlich |
-| Fehlermeldung 403 beim Installieren | Standardmäßig dürfen nur **Administratoren** installieren | Als Admin anmelden oder „Nur Administratoren“ in der Konfiguration abschalten (dann gelten die ACL-Rechte `system.plugin_maintain` + `system.plugin_upload`) |
-| GitHub-Ratenlimit („API rate limit exceeded“) | Ohne Token erlaubt GitHub nur 60 Anfragen pro Stunde | GitHub-Token hinterlegen (5000 Anfragen/Stunde) |
-| Ein installiertes Plugin hat keinen Admin-Bereich | Dessen Repository enthält nur Admin-Quelltexte, keine gebauten Dateien | Im jeweiligen Plugin `src/Resources/public/administration` mitliefern oder einmal `bin/build-administration.sh` ausführen (benötigt Node.js) |
-| Plugin mit Composer-Abhängigkeiten (z. B. Nova Suche) | Shopware lädt Abhängigkeiten beim Installieren per Composer nach – das kann auf Hostern ohne Composer/Schreibrechte scheitern | Im Shop-Hauptverzeichnis die Abhängigkeit manuell installieren, z. B. `composer require anthropic-ai/sdk` |
+### Nach dem ZIP-Upload fehlt der Button „Aus GitHub installieren“
+
+**Ursache:** Plugin nur hochgeladen, nicht installiert/aktiviert, oder Administration noch im Browser-Cache
+
+**Lösung:** Plugin **installieren und aktivieren**, Administration mit F5 neu laden. Hilft das nicht: `bin/console assets:install` und `bin/console cache:clear`
+
+### Button fehlt weiterhin, in der Browser-Konsole 404 auf `/bundles/dhgithubupdater/...`
+
+**Ursache:** Assets wurden nicht nach `public/bundles` kopiert
+
+**Lösung:** `bin/console assets:install` ausführen
+
+### „Keine kompatiblen Versionen gefunden“
+
+**Ursache:** Das Repository hat **keine Tags/Releases** – der Updater bietet nur Tags an
+
+**Lösung:** Auf GitHub ein Release anlegen: *Releases → Draft a new release → Tag `v1.0.0` eintippen → „Create new tag on publish“ → Publish*. Alternativ in der Konfiguration „Installation aus Branches“ aktivieren
+
+### Ein Release erscheint nicht in der Liste
+
+**Ursache:** `require.shopware/core` in der `composer.json` dieses Tags passt nicht zur Shopware-Version, oder der Tag ist keine Versionsnummer (z. B. `final`)
+
+**Lösung:** Tags wie `v1.2.0` verwenden und die Shopware-Angabe in der `composer.json` prüfen
+
+### „Das Repository enthält kein Shopware-6-Plugin“
+
+**Ursache:** `composer.json` fehlt im Hauptverzeichnis des Repos oder `type` ist nicht `shopware-platform-plugin`
+
+**Lösung:** `composer.json` mit `"type": "shopware-platform-plugin"` und `extra.shopware-plugin-class` ins Repo-Hauptverzeichnis
+
+### Privates Repository: „nicht gefunden“
+
+**Ursache:** Ohne Token sieht GitHub private Repos nicht
+
+**Lösung:** In der Konfiguration ein **GitHub-Token** (nur Leserechte) hinterlegen, siehe „Private Repositories“
+
+### „Die Erweiterungsverwaltung ist in dieser Umgebung deaktiviert“
+
+**Ursache:** `shopware.deployment.runtime_extension_management: false` (z. B. bei Cluster-/Cloud-Setups)
+
+**Lösung:** Plugins dort per Composer/Deployment installieren – der Updater respektiert diese Sperre absichtlich
+
+### Fehlermeldung 403 beim Installieren
+
+**Ursache:** Standardmäßig dürfen nur **Administratoren** installieren
+
+**Lösung:** Als Admin anmelden oder „Nur Administratoren“ in der Konfiguration abschalten (dann gelten die ACL-Rechte `system.plugin_maintain` + `system.plugin_upload`)
+
+### GitHub-Ratenlimit („API rate limit exceeded“)
+
+**Ursache:** Ohne Token erlaubt GitHub nur 60 Anfragen pro Stunde
+
+**Lösung:** GitHub-Token hinterlegen (5000 Anfragen/Stunde)
+
+### Ein installiertes Plugin hat keinen Admin-Bereich
+
+**Ursache:** Dessen Repository enthält nur Admin-Quelltexte, keine gebauten Dateien
+
+**Lösung:** Im jeweiligen Plugin `src/Resources/public/administration` mitliefern oder einmal `bin/build-administration.sh` ausführen (benötigt Node.js)
+
+### Plugin mit Composer-Abhängigkeiten (z. B. Nova Suche)
+
+**Ursache:** Shopware lädt Abhängigkeiten beim Installieren per Composer nach – das kann auf Hostern ohne Composer/Schreibrechte scheitern
+
+**Lösung:** Im Shop-Hauptverzeichnis die Abhängigkeit manuell installieren, z. B. `composer require anthropic-ai/sdk`
+
+### „Verbindung testen“ meldet ✗ bei „Plugin“: Plugin passt nicht
+
+**Ursache:** Die `composer.json` im Repository gehört zu einem anderen Plugin (anderer Name bzw. andere `extra.shopware-plugin-class`) – meist falsches Repository verknüpft
+
+**Lösung:** Richtige Repository-URL eintragen. Bei eigenen Plugins Name und Plugin-Klasse in der `composer.json` prüfen
+
+### „Verbindung testen“ meldet ✗ bei „Erlaubte Repositories“
+
+**Ursache:** Das Repository steht nicht in der Positivliste der Plugin-Konfiguration
+
+**Lösung:** In *Einstellungen → Erweiterungen → GitHub Plugin-Updater* unter „Erlaubte Repositories“ `owner/repo` oder `owner/*` ergänzen
+
+### „Verbindung testen“ meldet ✗ bei „Zugriff“: Token ungültig
+
+**Ursache:** Das hinterlegte GitHub-Token ist abgelaufen, widerrufen oder falsch kopiert
+
+**Lösung:** Neues Token (nur Lesezugriff) erstellen und in der Konfiguration eintragen
+
+### Im „…“-Menü fehlt „Mit GitHub verknüpfen“
+
+**Ursache:** Das Plugin ist nicht installiert, der Benutzer hat nicht die Rechte `system.plugin_maintain` + `system.plugin_upload`, oder die Erweiterungsverwaltung ist deaktiviert
+
+**Lösung:** Plugin zuerst installieren bzw. mit ausreichenden Rechten anmelden; Administration nach Plugin-Update mit F5 neu laden
+
+### Auf der Plugin-Karte ist kein GitHub-Bereich zu sehen
+
+**Ursache:** Gewollt: Der Bereich erscheint nur bei verknüpften Plugins
+
+**Lösung:** Über das „…“-Menü → „Mit GitHub verknüpfen …“ verknüpfen
 
 ## Lizenz
 

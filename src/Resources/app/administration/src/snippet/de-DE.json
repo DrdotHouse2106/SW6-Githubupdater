@@ -20,12 +20,38 @@
         },
         "card": {
             "notLinked": "nicht verknüpft",
-            "link": "Repository verknüpfen",
-            "edit": "Ändern",
-            "check": "Updates prüfen",
+            "link": "Mit GitHub verknüpfen …",
+            "edit": "GitHub-Verknüpfung bearbeiten …",
+            "unlink": "GitHub-Verknüpfung entfernen",
+            "check": "Auf GitHub-Updates prüfen",
+            "checking": "Prüfe …",
+            "test": "Verbindung testen",
             "update": "Aktualisieren",
+            "updateAvailable": "Update verfügbar:",
             "upToDate": "{name} ist auf dem neuesten Stand.",
-            "updateSuccess": "{name} wurde aus GitHub aktualisiert."
+            "updateSuccess": "{name} wurde aus GitHub aktualisiert.",
+            "linkSuccess": "{name} ist jetzt mit {repository} verknüpft.",
+            "unlinkSuccess": "Die GitHub-Verknüpfung von {name} wurde entfernt. Das Plugin selbst bleibt unverändert."
+        },
+        "linkModal": {
+            "title": "{name} mit GitHub verknüpfen",
+            "intro": "Nach dem Verknüpfen kann dieses Plugin direkt aus dem GitHub-Repository aktualisiert werden. Am Plugin selbst ändert sich dabei nichts.",
+            "label": "GitHub-Repository",
+            "invalid": "Bitte im Format https://github.com/owner/repository oder owner/repository angeben.",
+            "allowListHint": "Erlaubt sind nur Repositories aus „Erlaubte Repositories“ in der Plugin-Konfiguration (leer = alle). Für private Repositories muss ein GitHub-Token hinterlegt sein."
+        },
+        "test": {
+            "hint": "Prüft Zugriff, composer.json und kompatible Versionen – es wird nichts installiert.",
+            "summaryOk": "Alles in Ordnung – das Repository kann verknüpft und für Updates genutzt werden.",
+            "summaryError": "Es gibt Probleme. Details stehen oben; die Lösungen findest du auch in der README unter „Häufige Probleme und Lösungen“.",
+            "checks": {
+                "format": "Eingabe",
+                "allowList": "Erlaubte Repositories",
+                "access": "Zugriff",
+                "plugin": "Plugin",
+                "releases": "Releases",
+                "compatibility": "Kompatibilität"
+            }
         }
     }
 }

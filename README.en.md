@@ -71,6 +71,14 @@ To install this updater itself from a private repository, clone with a token and
 from the remote afterwards, or download the ZIP from GitHub and upload the folder as
 `custom/plugins/DhGithubUpdater`.
 
+## Usage
+
+- **Install:** Extensions → My extensions → "Install from GitHub".
+- **Link existing plugins** (any plugin, including Store plugins): plugin card → "…" menu → "Link with GitHub …", enter the repository URL, optionally click **"Test connection"**, then save.
+- **Update:** linked plugins show a compact GitHub section on the card (repository link, installed version, "Check for updates" / "Update").
+- **Test connection** runs server-side, read-only, and reports per check: input, allowed repositories, access (not found / private without token, invalid token, rate limit), plugin (composer.json, name/class match), releases, compatible versions for the running Shopware version.
+- Edit or remove the link via the "…" menu.
+
 ## Development
 
 ```bash
@@ -88,6 +96,8 @@ Known pitfalls from real installations. **Please add new ones** (or open an issu
 - **Private repository not found / rate limit:** configure a read-only GitHub token.
 - **"Extension management disabled":** `shopware.deployment.runtime_extension_management` is false – install via Composer instead.
 - **403:** only administrators may install by default.
+- **No GitHub section on a plugin card:** intended – it only appears once the plugin is linked. Use the card's "…" menu → "Link with GitHub …".
+- **"Test connection" reports ✗:** the message per check explains the cause (wrong repository/plugin, not in the allow-list, invalid token, rate limit, no releases).
 - **Plugins with Composer dependencies** may fail on hosts without Composer – install the dependency manually in the shop root.
 
 ## License

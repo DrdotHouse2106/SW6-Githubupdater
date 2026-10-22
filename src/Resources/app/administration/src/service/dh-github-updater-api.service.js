@@ -75,6 +75,25 @@ class DhGithubUpdaterApiService extends ApiService {
             .then(ApiService.handleResponse);
     }
 
+    testConnection(repository, pluginName = null) {
+        const params = { repository };
+        if (pluginName) {
+            params.pluginName = pluginName;
+        }
+
+        return this.httpClient
+            .get(`${this.getApiBasePath()}/test-connection`, {
+                params,
+                headers: this.getBasicHeaders(),
+                timeout: 60000,
+            })
+            .then(ApiService.handleResponse);
+    }
+
+    unlink(pluginName) {
+        return this.link(pluginName, '');
+    }
+
     static getErrorMessage(error, fallback) {
         return error?.response?.data?.message
             || error?.response?.data?.errors?.[0]?.detail

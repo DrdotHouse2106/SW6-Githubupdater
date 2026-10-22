@@ -20,12 +20,38 @@
         },
         "card": {
             "notLinked": "not linked",
-            "link": "Link repository",
-            "edit": "Change",
-            "check": "Check for updates",
+            "link": "Link to GitHub …",
+            "edit": "Edit GitHub link …",
+            "unlink": "Remove GitHub link",
+            "check": "Check for GitHub updates",
+            "checking": "Checking …",
+            "test": "Test connection",
             "update": "Update",
+            "updateAvailable": "Update available:",
             "upToDate": "{name} is up to date.",
-            "updateSuccess": "{name} has been updated from GitHub."
+            "updateSuccess": "{name} has been updated from GitHub.",
+            "linkSuccess": "{name} is now linked to {repository}.",
+            "unlinkSuccess": "The GitHub link of {name} has been removed. The plugin itself is unchanged."
+        },
+        "linkModal": {
+            "title": "Link {name} to GitHub",
+            "intro": "Once linked, this plugin can be updated directly from its GitHub repository. Nothing changes on the plugin itself.",
+            "label": "GitHub repository",
+            "invalid": "Please use https://github.com/owner/repository or owner/repository.",
+            "allowListHint": "Only repositories listed under \"Allowed repositories\" in the plugin configuration are possible (empty = all). Private repositories need a GitHub token."
+        },
+        "test": {
+            "hint": "Checks access, composer.json and compatible versions – nothing is installed.",
+            "summaryOk": "All good – the repository can be linked and used for updates.",
+            "summaryError": "There are problems. See the details above and \"Troubleshooting\" in the README.",
+            "checks": {
+                "format": "Input",
+                "allowList": "Allowed repositories",
+                "access": "Access",
+                "plugin": "Plugin",
+                "releases": "Releases",
+                "compatibility": "Compatibility"
+            }
         }
     }
 }

@@ -43,6 +43,7 @@ class GithubPluginManager
         private readonly EntityRepository $pluginRepository,
         private readonly LockFactory $lockFactory,
         private readonly LoggerInterface $logger,
+        private readonly ConnectionTester $connectionTester,
     ) {
     }
 
@@ -249,6 +250,26 @@ class GithubPluginManager
         $this->sourceLinkStore->link($plugin->getId(), $repository);
 
         return $repository->getFullName();
+    }
+
+    /**
+     * „Verbindung testen“ – liest nur, installiert nichts.
+     *
+     * @return array<string, mixed>
+     */
+    public function testConnection(string $repositoryInput, ?string $pluginName, Context $context): array
+    {
+        $plugin = null;
+        if ($pluginName !== null && $pluginName !== '') {
+            $plugin = $this->requirePlugin($pluginName, $context);
+        }
+
+        return $this->connectionTester->test(
+            $repositoryInput,
+            $plugin?->getName(),
+            $plugin?->getBaseClass(),
+            $plugin?->getVersion(),
+        );
     }
 
     /**

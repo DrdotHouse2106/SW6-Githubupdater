@@ -1,81 +1,47 @@
+{# Kompakte GitHub-Zeile – nur bei Plugins, die mit einem Repository verknüpft sind #}
 {% block sw_extension_card_base_info_content %}
     {% parent %}
 
     <section
-        v-if="dhGithubVisible && dhGithub.loaded"
+        v-if="dhGithubAllowed && dhGithub.loaded && dhGithub.repository"
         class="dh-github-updater-card"
     >
-        <div
-            v-if="!dhGithub.isEditing"
-            class="dh-github-updater-card__row"
-        >
-            <span>GitHub:</span>
+        <div class="dh-github-updater-card__row">
+            <mt-icon
+                name="regular-github"
+                size="12px"
+                class="dh-github-updater-card__icon"
+            />
             <a
-                v-if="dhGithub.repository"
+                class="dh-github-updater-card__repo"
                 :href="`https://github.com/${dhGithub.repository}`"
+                :title="dhGithub.repository"
                 target="_blank"
                 rel="noopener noreferrer"
             >{{ dhGithub.repository }}</a>
-            <span v-else>{{ $tc('dh-github-updater.card.notLinked') }}</span>
-            <span v-if="dhGithub.installedRef">({{ dhGithub.installedRef }})</span>
-
-            <a
-                href="#"
-                @click.prevent="dhGithubStartEdit"
-            >{{ dhGithub.repository ? $tc('dh-github-updater.card.edit') : $tc('dh-github-updater.card.link') }}</a>
-
-            <mt-button
-                v-if="dhGithub.repository"
-                size="small"
-                variant="secondary"
-                :is-loading="dhGithub.isBusy"
-                :disabled="dhGithub.isBusy"
-                @click="dhGithubCheck"
-            >
-                {{ $tc('dh-github-updater.card.check') }}
-            </mt-button>
-        </div>
-
-        <div
-            v-else
-            class="dh-github-updater-card__row"
-        >
-            <mt-text-field
-                v-model="dhGithub.editRepository"
-                class="dh-github-updater-card__field"
-                placeholder="https://github.com/owner/repository"
-                :disabled="dhGithub.isBusy"
-            />
-            <mt-button
-                size="small"
-                variant="primary"
-                :is-loading="dhGithub.isBusy"
-                @click="dhGithubSaveLink"
-            >
-                {{ $tc('global.default.save') }}
-            </mt-button>
-            <mt-button
-                size="small"
-                variant="secondary"
-                :disabled="dhGithub.isBusy"
-                @click="dhGithub.isEditing = false"
-            >
-                {{ $tc('global.default.cancel') }}
-            </mt-button>
+            <span
+                v-if="dhGithub.installedRef"
+                class="dh-github-updater-card__ref"
+            >{{ dhGithub.installedRef }}</span>
         </div>
 
         <div
             v-if="dhGithub.updates && dhGithub.updates.length > 0"
-            class="dh-github-updater-card__row"
+            class="dh-github-updater-card__update"
         >
+            <span class="dh-github-updater-card__update-label">
+                {{ $tc('dh-github-updater.card.updateAvailable') }}
+            </span>
             <sw-single-select
+                v-if="dhGithub.updates.length > 1"
                 v-model:value="dhGithub.selectedKey"
-                class="dh-github-updater-card__field"
+                class="dh-github-updater-card__select"
                 :options="dhGithubUpdateOptions"
                 :disabled="dhGithub.isBusy"
             />
+            <strong v-else>{{ dhGithubSelectedUpdate ? dhGithubSelectedUpdate.label : '' }}</strong>
             <mt-button
-                size="small"
+                size="x-small"
                 variant="primary"
                 :is-loading="dhGithub.isBusy"
                 :disabled="dhGithub.isBusy || !dhGithubSelectedUpdate"
@@ -84,5 +50,143 @@
                 {{ $tc('dh-github-updater.card.update') }}
             </mt-button>
         </div>
+
+        <a
+            v-else
+            href="#"
+            class="dh-github-updater-card__check"
+            :class="{ 'is--busy': dhGithub.isBusy }"
+            @click.prevent="dhGithubCheck"
+        >
+            {{ dhGithub.isBusy ? $tc('dh-github-updater.card.checking') : $tc('dh-github-updater.card.check') }}
+        </a>
     </section>
+{% endblock %}
+
+{# Verknüpfen / Bearbeiten / Entfernen im „…“-Menü der Karte #}
+{% block sw_extension_card_base_context_menu_actions_additional %}
+    {% parent %}
+
+    <template v-if="dhGithubAllowed && dhGithub.loaded">
+        <sw-context-menu-item
+            v-if="!dhGithub.repository && dhGithubCanLink"
+            class="dh-github-updater-card__menu-link"
+            @click="dhGithubOpenModal"
+        >
+            {{ $tc('dh-github-updater.card.link') }}
+        </sw-context-menu-item>
+
+        <template v-if="dhGithub.repository">
+            <sw-context-menu-item @click="dhGithubCheck">
+                {{ $tc('dh-github-updater.card.check') }}
+            </sw-context-menu-item>
+            <sw-context-menu-item @click="dhGithubOpenModal(true)">
+                {{ $tc('dh-github-updater.card.test') }}
+            </sw-context-menu-item>
+            <sw-context-menu-item @click="dhGithubOpenModal">
+                {{ $tc('dh-github-updater.card.edit') }}
+            </sw-context-menu-item>
+            <sw-context-menu-item
+                variant="danger"
+                @click="dhGithubUnlink"
+            >
+                {{ $tc('dh-github-updater.card.unlink') }}
+            </sw-context-menu-item>
+        </template>
+    </template>
+{% endblock %}
+
+{% block sw_extension_card_base_modals %}
+    {% parent %}
+
+    <sw-modal
+        v-if="dhGithub.showModal"
+        class="dh-github-updater-link-modal"
+        :title="$tc('dh-github-updater.linkModal.title', 0, { name: extension.label })"
+        variant="small"
+        :is-loading="dhGithub.isBusy"
+        @modal-close="dhGithubCloseModal"
+    >
+        <p class="dh-github-updater-link-modal__intro">
+            {{ $tc('dh-github-updater.linkModal.intro') }}
+        </p>
+
+        <mt-text-field
+            v-model="dhGithub.editRepository"
+            :label="$tc('dh-github-updater.linkModal.label')"
+            placeholder="https://github.com/owner/repository"
+            :error="dhGithubEditError"
+            :disabled="dhGithub.isBusy"
+            @keyup.enter="dhGithubSaveLink"
+        />
+
+        <p class="dh-github-updater-link-modal__hint">
+            {{ $tc('dh-github-updater.linkModal.allowListHint') }}
+        </p>
+
+        <div class="dh-github-updater-link-modal__test">
+            <mt-button
+                size="small"
+                variant="secondary"
+                :is-loading="dhGithub.isTesting"
+                :disabled="dhGithub.isTesting || dhGithub.isBusy || !dhGithubEditValid"
+                @click="dhGithubTest"
+            >
+                {{ $tc('dh-github-updater.card.test') }}
+            </mt-button>
+            <span class="dh-github-updater-link-modal__test-hint">
+                {{ $tc('dh-github-updater.test.hint') }}
+            </span>
+        </div>
+
+        <ul
+            v-if="dhGithub.testResult"
+            class="dh-github-updater-link-modal__checks"
+        >
+            <li
+                v-for="check in dhGithubTestChecks"
+                :key="check.key"
+                class="dh-github-updater-link-modal__check"
+                :class="`is--${check.status}`"
+            >
+                <mt-icon
+                    :name="check.icon"
+                    size="12px"
+                    class="dh-github-updater-link-modal__check-icon"
+                />
+                <span>
+                    <strong>{{ check.label }}:</strong>
+                    {{ check.message }}
+                </span>
+            </li>
+        </ul>
+
+        <mt-banner
+            v-if="dhGithub.testResult"
+            :variant="dhGithub.testResult.ok ? 'positive' : 'critical'"
+            class="dh-github-updater-link-modal__summary"
+        >
+            {{ dhGithub.testResult.ok ? $tc('dh-github-updater.test.summaryOk') : $tc('dh-github-updater.test.summaryError') }}
+        </mt-banner>
+
+        <template #modal-footer>
+            <mt-button
+                size="small"
+                variant="secondary"
+                :disabled="dhGithub.isBusy"
+                @click="dhGithubCloseModal"
+            >
+                {{ $tc('global.default.cancel') }}
+            </mt-button>
+            <mt-button
+                size="small"
+                variant="primary"
+                :is-loading="dhGithub.isBusy"
+                :disabled="dhGithub.isBusy || !dhGithubEditValid"
+                @click="dhGithubSaveLink"
+            >
+                {{ $tc('global.default.save') }}
+            </mt-button>
+        </template>
+    </sw-modal>
 {% endblock %}
