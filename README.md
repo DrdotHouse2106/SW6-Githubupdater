@@ -183,6 +183,24 @@ vendor/bin/phpunit
 Die Unit-Tests decken u. a. Zip-Slip, Symlinks, Zip-Bomben, URL-Validierung,
 Redirect-Schutz, Token-Weitergabe und Pfad-Prüfungen ab.
 
+## Häufige Probleme und Lösungen
+
+Hier sammeln wir Hürden, die bei Installation und Betrieb tatsächlich aufgetreten sind. **Neue Probleme bitte ergänzen** (oder als Issue melden), damit andere nicht lange suchen müssen.
+
+| Problem | Ursache | Lösung |
+|---|---|---|
+| Nach dem ZIP-Upload fehlt der Button „Aus GitHub installieren“ | Plugin nur hochgeladen, nicht installiert/aktiviert, oder Administration noch im Browser-Cache | Plugin **installieren und aktivieren**, Administration mit F5 neu laden. Hilft das nicht: `bin/console assets:install` und `bin/console cache:clear` |
+| Button fehlt weiterhin, in der Browser-Konsole 404 auf `/bundles/dhgithubupdater/...` | Assets wurden nicht nach `public/bundles` kopiert | `bin/console assets:install` ausführen |
+| „Keine kompatiblen Versionen gefunden“ | Das Repository hat **keine Tags/Releases** – der Updater bietet nur Tags an | Auf GitHub ein Release anlegen: *Releases → Draft a new release → Tag `v1.0.0` eintippen → „Create new tag on publish“ → Publish*. Alternativ in der Konfiguration „Installation aus Branches“ aktivieren |
+| Ein Release erscheint nicht in der Liste | `require.shopware/core` in der `composer.json` dieses Tags passt nicht zur Shopware-Version, oder der Tag ist keine Versionsnummer (z. B. `final`) | Tags wie `v1.2.0` verwenden und die Shopware-Angabe in der `composer.json` prüfen |
+| „Das Repository enthält kein Shopware-6-Plugin“ | `composer.json` fehlt im Hauptverzeichnis des Repos oder `type` ist nicht `shopware-platform-plugin` | `composer.json` mit `"type": "shopware-platform-plugin"` und `extra.shopware-plugin-class` ins Repo-Hauptverzeichnis |
+| Privates Repository: „nicht gefunden“ | Ohne Token sieht GitHub private Repos nicht | In der Konfiguration ein **GitHub-Token** (nur Leserechte) hinterlegen, siehe „Private Repositories“ |
+| „Die Erweiterungsverwaltung ist in dieser Umgebung deaktiviert“ | `shopware.deployment.runtime_extension_management: false` (z. B. bei Cluster-/Cloud-Setups) | Plugins dort per Composer/Deployment installieren – der Updater respektiert diese Sperre absichtlich |
+| Fehlermeldung 403 beim Installieren | Standardmäßig dürfen nur **Administratoren** installieren | Als Admin anmelden oder „Nur Administratoren“ in der Konfiguration abschalten (dann gelten die ACL-Rechte `system.plugin_maintain` + `system.plugin_upload`) |
+| GitHub-Ratenlimit („API rate limit exceeded“) | Ohne Token erlaubt GitHub nur 60 Anfragen pro Stunde | GitHub-Token hinterlegen (5000 Anfragen/Stunde) |
+| Ein installiertes Plugin hat keinen Admin-Bereich | Dessen Repository enthält nur Admin-Quelltexte, keine gebauten Dateien | Im jeweiligen Plugin `src/Resources/public/administration` mitliefern oder einmal `bin/build-administration.sh` ausführen (benötigt Node.js) |
+| Plugin mit Composer-Abhängigkeiten (z. B. Nova Suche) | Shopware lädt Abhängigkeiten beim Installieren per Composer nach – das kann auf Hostern ohne Composer/Schreibrechte scheitern | Im Shop-Hauptverzeichnis die Abhängigkeit manuell installieren, z. B. `composer require anthropic-ai/sdk` |
+
 ## Lizenz
 
 MIT – siehe [LICENSE](LICENSE).

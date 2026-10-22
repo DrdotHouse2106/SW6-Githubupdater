@@ -78,6 +78,18 @@ composer install
 vendor/bin/phpunit
 ```
 
+## Troubleshooting
+
+Known pitfalls from real installations. **Please add new ones** (or open an issue).
+
+- **"Install from GitHub" button missing after ZIP upload:** install *and* activate the plugin, reload the admin (F5); if still missing run `bin/console assets:install` and `cache:clear`.
+- **"No compatible versions":** the repository has no tags/releases. Create a release (tag `v1.0.0`) or enable branch installs.
+- **Release not listed:** `require.shopware/core` of that tag does not match, or the tag is not a version number.
+- **Private repository not found / rate limit:** configure a read-only GitHub token.
+- **"Extension management disabled":** `shopware.deployment.runtime_extension_management` is false – install via Composer instead.
+- **403:** only administrators may install by default.
+- **Plugins with Composer dependencies** may fail on hosts without Composer – install the dependency manually in the shop root.
+
 ## License
 
 MIT
