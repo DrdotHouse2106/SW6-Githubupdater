@@ -328,11 +328,11 @@ Hier sammeln wir Hürden, die bei Installation und Betrieb tatsächlich aufgetre
 
 **Lösung:** Als Admin anmelden oder „Nur Administratoren“ in der Konfiguration abschalten (dann gelten die ACL-Rechte `system.plugin_maintain` + `system.plugin_upload`)
 
-### GitHub-Ratenlimit („API rate limit exceeded“)
+### „GitHub-API-Limit erreicht“
 
-**Ursache:** Ohne Token erlaubt GitHub nur 60 Anfragen pro Stunde
+**Ursache:** Ohne Token erlaubt GitHub nur **60 Anfragen pro Stunde** je Server-IP. Jede Prüfung kostet je Plugin mehrere Anfragen (Tags, Releases, composer.json je Version); dazu kommen Katalog, automatische Prüfung und „Verbindung testen“. Bis 1.2.1 wurden pro Plugin bis zu 15 Versionen geprüft
 
-**Lösung:** GitHub-Token hinterlegen (5000 Anfragen/Stunde)
+**Lösung:** Ab 1.2.2 werden nur neuere Versionen geprüft. Dauerhaft hilft ein **GitHub-Token** (5.000 Anfragen pro Stunde): GitHub → Settings → Developer settings → Personal access tokens → **Fine-grained tokens** → „Generate new token“, Ablaufdatum wählen, bei *Repository access* „**Public repositories (read-only)**“ (für private Repos stattdessen nur diese auswählen und *Contents: Read-only*), erzeugen und unter *Erweiterungen → GitHub Plugin-Updater → Konfigurieren → GitHub-Token* einfügen. Die Fehlermeldung nennt die Uhrzeit, ab der es auch ohne Token wieder geht
 
 ### Ein installiertes Plugin hat keinen Admin-Bereich
 

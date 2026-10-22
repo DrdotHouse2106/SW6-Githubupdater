@@ -156,4 +156,21 @@ class GithubApiClientTest extends TestCase
         $this->expectExceptionMessageMatches('/API-Limit/');
         $client->listTags(RepositoryReference::fromFullName('owner/repo'), null);
     }
+
+    public function testRateLimitMessageNamesResetTimeAndToken(): void
+    {
+        $client = new GithubApiClient(new MockHttpClient(static fn () => new MockResponse('{}', [
+            'http_code' => 403,
+            'response_headers' => ['X-RateLimit-Limit: 60', 'X-RateLimit-Remaining: 0', 'X-RateLimit-Reset: ' . mktime(14, 5, 0)],
+        ])));
+
+        try {
+            $client->listTags(RepositoryReference::fromFullName('owner/repo'), null);
+            static::fail('Exception erwartet');
+        } catch (GithubUpdaterException $e) {
+            static::assertStringContainsString('60 Anfragen pro Stunde ohne Token', $e->getMessage());
+            static::assertStringContainsString('14:05 Uhr', $e->getMessage());
+            static::assertStringContainsString('GitHub-Token', $e->getMessage());
+        }
+    }
 }

@@ -255,7 +255,7 @@ class GithubPluginManager
         $installedVersion = $plugin->getVersion();
         $updates = [];
         $latestVersion = null;
-        foreach ($this->versionResolver->listCompatible($link['repository']) as $candidate) {
+        foreach ($this->versionResolver->listCompatible($link['repository'], $installedVersion) as $candidate) {
             if ($candidate->manifest->pluginName !== $plugin->getName()) {
                 continue;
             }

@@ -104,7 +104,7 @@ class GithubApiClient
         if ($status === 404) {
             return null;
         }
-        $this->assertSuccessful($status);
+        $this->assertSuccessful($status, $response);
 
         return $this->readLimited($response, self::MAX_COMPOSER_JSON_BYTES);
     }
@@ -128,7 +128,7 @@ class GithubApiClient
         if ($status === 404) {
             return null;
         }
-        $this->assertSuccessful($status);
+        $this->assertSuccessful($status, $response);
 
         return $this->readLimited($response, $maxBytes);
     }
@@ -205,7 +205,7 @@ class GithubApiClient
     private function downloadToFile(string $url, array $headers, string $targetFile, int $maxBytes, ?string $token): void
     {
         $response = $this->request($url, $token, $headers, 300);
-        $this->assertSuccessful($response->getStatusCode());
+        $this->assertSuccessful($response->getStatusCode(), $response);
 
         $length = $response->getHeaders(false)['content-length'][0] ?? null;
         if ($length !== null && (int) $length > $maxBytes) {
@@ -247,7 +247,7 @@ class GithubApiClient
         if ($status === 404) {
             throw new GithubUpdaterException('Repository nicht gefunden oder kein Zugriff. Für private Repositories muss ein GitHub-Token mit Lesezugriff hinterlegt sein.', 404);
         }
-        $this->assertSuccessful($status);
+        $this->assertSuccessful($status, $response);
 
         try {
             $data = json_decode($this->readLimited($response, self::MAX_JSON_BYTES), true, 64, \JSON_THROW_ON_ERROR);
@@ -338,10 +338,24 @@ class GithubApiClient
         throw new GithubUpdaterException('Ungültige Weiterleitung von GitHub.', 502);
     }
 
-    private function assertSuccessful(int $status): void
+    private function assertSuccessful(int $status, ?ResponseInterface $response = null): void
     {
         if ($status === 401) {
             throw new GithubUpdaterException('Das hinterlegte GitHub-Token ist ungültig oder abgelaufen.', 502);
+        }
+
+        $headers = ($status === 403 || $status === 429) && $response !== null ? $response->getHeaders(false) : [];
+        if (($headers['x-ratelimit-remaining'][0] ?? null) === '0') {
+            $limit = (int) ($headers['x-ratelimit-limit'][0] ?? 0);
+            $reset = (int) ($headers['x-ratelimit-reset'][0] ?? 0);
+
+            throw new GithubUpdaterException(\sprintf(
+                'GitHub-API-Limit erreicht (%d Anfragen pro Stunde%s). Wieder möglich ab %s Uhr.%s',
+                $limit,
+                $limit <= 60 ? ' ohne Token' : '',
+                $reset > 0 ? date('H:i', $reset) : 'etwa einer Stunde',
+                $limit <= 60 ? ' Abhilfe: In der Plugin-Konfiguration ein GitHub-Token hinterlegen (5.000 Anfragen pro Stunde).' : '',
+            ), 429);
         }
 
         if ($status === 403 || $status === 429) {

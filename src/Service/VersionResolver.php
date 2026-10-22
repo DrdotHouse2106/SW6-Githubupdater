@@ -35,13 +35,13 @@ class VersionResolver
     /**
      * @return list<VersionCandidate> neueste zuerst
      */
-    public function listCompatible(RepositoryReference $repository): array
+    public function listCompatible(RepositoryReference $repository, ?string $newerThan = null): array
     {
         $token = $this->config->getToken();
         $candidates = [];
         $releaseAssets = null;
 
-        foreach ($this->selectTags($repository, $token) as $tag) {
+        foreach ($this->selectTags($repository, $token, $newerThan) as $tag) {
             $releaseAssets ??= $this->loadReleaseAssets($repository, $token);
             $candidate = $this->buildCandidate($repository, $tag, $token, $releaseAssets[$tag->name] ?? []);
             if ($candidate !== null) {
@@ -104,9 +104,13 @@ class VersionResolver
     }
 
     /**
+     * Mit $newerThan (Update-Prüfung) werden nur neuere Tags geprüft, dazu der neueste ältere
+     * bzw. gleiche Tag als Bezugspunkt. Das spart GitHub-Anfragen: ohne Token erlaubt GitHub
+     * nur 60 pro Stunde, und jeder geprüfte Tag kostet eine.
+     *
      * @return list<GitRef>
      */
-    private function selectTags(RepositoryReference $repository, ?string $token): array
+    private function selectTags(RepositoryReference $repository, ?string $token, ?string $newerThan = null): array
     {
         $tags = array_values(array_filter(
             $this->client->listTags($repository, $token),
@@ -114,6 +118,17 @@ class VersionResolver
         ));
 
         usort($tags, static fn (GitRef $a, GitRef $b): int => CompatibilityChecker::compare($b->name, $a->name) ?? 0);
+
+        if ($newerThan !== null && CompatibilityChecker::isParsableVersion($newerThan)) {
+            $selected = [];
+            foreach ($tags as $tag) {
+                $selected[] = $tag;
+                if ((CompatibilityChecker::compare($tag->name, $newerThan) ?? 1) <= 0) {
+                    break;
+                }
+            }
+            $tags = $selected;
+        }
 
         return \array_slice($tags, 0, $this->config->getMaxTagsToCheck());
     }

@@ -1,3 +1,7 @@
+# 1.2.2
+- Update-Prüfung braucht deutlich weniger GitHub-Anfragen: Es werden nur Versionen geprüft, die neuer als die installierte sind (vorher bis zu 15 je Plugin) – wichtig ohne Token (60 Anfragen pro Stunde)
+- Meldung beim GitHub-Limit nennt die Uhrzeit, ab der es wieder geht, und den Hinweis auf das Token
+
 # 1.2.1
 - Scheitert nach dem Herunterladen nur das Installieren/Aktivieren durch Shopware (z. B. Zeitüberschreitung beim Kompilieren der Themes), erscheint ein genauer Hinweis statt „Unbekannter Fehler“; die Seite wird trotzdem neu geladen, damit das Plugin in der Liste steht
 - Fehlermeldungen ohne Text zeigen den HTTP-Status bzw. „Timeout“
