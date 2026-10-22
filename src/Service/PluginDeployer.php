@@ -3,6 +3,7 @@
 namespace DhGithubUpdater\Service;
 
 use DhGithubUpdater\Exception\GithubUpdaterException;
+use DhGithubUpdater\Package\PackageInspector;
 use DhGithubUpdater\Package\PluginManifest;
 use DhGithubUpdater\Package\SafeZipExtractor;
 use Symfony\Component\Filesystem\Filesystem;
@@ -26,6 +27,7 @@ class PluginDeployer
     public function __construct(
         private readonly string $projectDir,
         private readonly SafeZipExtractor $extractor,
+        private readonly PackageInspector $inspector = new PackageInspector(),
     ) {
         $this->filesystem = new Filesystem();
     }
@@ -45,13 +47,14 @@ class PluginDeployer
             }
 
             $manifest = PluginManifest::fromJson((string) file_get_contents($composerFile));
+            $warnings = $this->inspector->inspect($path, $manifest);
         } catch (\Throwable $e) {
             $this->filesystem->remove($path);
 
             throw $e;
         }
 
-        return new StagedPackage($path, $manifest);
+        return new StagedPackage($path, $manifest, $warnings);
     }
 
     /**

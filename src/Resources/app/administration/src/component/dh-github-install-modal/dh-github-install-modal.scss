@@ -16,4 +16,14 @@
         margin: 16px 0;
         word-break: break-word;
     }
+
+    .dh-github-install-modal__package {
+        margin: -8px 0 16px;
+        font-size: 13px;
+        color: var(--color-text-secondary-default, #52667a);
+
+        &.is--release {
+            color: var(--color-emerald-700, #0b7a43);
+        }
+    }
 }

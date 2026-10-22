@@ -48,6 +48,19 @@ bin/console plugin:install --activate DhGithubUpdater
 bin/console cache:clear
 ```
 
+## Plugin catalog, release packages, automatic update check (1.2.0)
+
+- **Plugin catalog**: *Extensions → My extensions → "Plugin catalog"* lists reviewed plugins on
+  GitHub (search, categories, install or link with one click). The catalog lives in
+  `src/Resources/catalog/plugins.json` and is refreshed from GitHub every 6 hours.
+  Contributions welcome – see [CONTRIBUTING.md](CONTRIBUTING.md) (German).
+- **Release packages**: If the GitHub release of a tag has a plugin ZIP attached
+  (`<PluginName>.zip`, `<PluginName>-<version>.zip` or the only ZIP), it is installed instead
+  of the source code – including built administration and `vendor/`.
+- **Automatic update check**: scheduled task every 12 hours; updates appear directly on the
+  plugin card and once as notification (bell). Without running scheduled tasks the check runs
+  when "My extensions" is opened. Nothing is ever installed automatically.
+
 ## Configuration
 
 See *Settings → Extensions → GitHub plugin updater*: admins only (default on), allowed

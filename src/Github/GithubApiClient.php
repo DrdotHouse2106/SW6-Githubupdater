@@ -25,10 +25,12 @@ class GithubApiClient
         'github.com',
         'objects.githubusercontent.com',
         'raw.githubusercontent.com',
+        'release-assets.githubusercontent.com',
     ];
     private const MAX_REDIRECTS = 5;
     private const MAX_JSON_BYTES = 5 * 1024 * 1024;
     private const MAX_COMPOSER_JSON_BYTES = 512 * 1024;
+    private const MAX_RELEASES = 100;
 
     private readonly HttpClientInterface $httpClient;
 
@@ -108,6 +110,66 @@ class GithubApiClient
     }
 
     /**
+     * Liefert eine Textdatei aus dem Standard-Branch (bzw. $ref) oder null, wenn sie fehlt.
+     */
+    public function getFileContents(RepositoryReference $repository, string $path, ?string $token, int $maxBytes = self::MAX_COMPOSER_JSON_BYTES): ?string
+    {
+        if (!preg_match('#^[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)*$#', $path) || str_contains($path, '..')) {
+            throw new GithubUpdaterException('Ungültiger Dateipfad.');
+        }
+
+        $response = $this->request(
+            self::API_BASE . $repository->getApiPath() . '/contents/' . $path,
+            $token,
+            ['Accept' => 'application/vnd.github.raw+json'],
+        );
+
+        $status = $response->getStatusCode();
+        if ($status === 404) {
+            return null;
+        }
+        $this->assertSuccessful($status);
+
+        return $this->readLimited($response, $maxBytes);
+    }
+
+    /**
+     * ZIP-Anhänge veröffentlichter Releases, gruppiert nach Tag-Name.
+     *
+     * @return array<string, list<ReleaseAsset>>
+     */
+    public function listReleaseAssets(RepositoryReference $repository, ?string $token): array
+    {
+        $data = $this->getJson($repository->getApiPath() . '/releases?per_page=' . self::MAX_RELEASES, $token);
+
+        $result = [];
+        foreach ($data as $release) {
+            if (!\is_array($release) || ($release['draft'] ?? false) === true) {
+                continue;
+            }
+
+            $tag = $release['tag_name'] ?? null;
+            if (!\is_string($tag) || !GitRef::isValidName($tag)) {
+                continue;
+            }
+
+            $assets = [];
+            foreach (\is_array($release['assets'] ?? null) ? $release['assets'] : [] as $asset) {
+                $parsed = \is_array($asset) ? ReleaseAsset::fromApi($asset) : null;
+                if ($parsed !== null) {
+                    $assets[] = $parsed;
+                }
+            }
+
+            if ($assets !== []) {
+                $result[$tag] = $assets;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Lädt das ZIP-Archiv eines Commits herunter und schreibt es nach $targetFile.
      */
     public function downloadZipball(RepositoryReference $repository, string $commitSha, string $targetFile, int $maxBytes, ?string $token): void
@@ -116,7 +178,33 @@ class GithubApiClient
             throw new GithubUpdaterException('Ungültige Commit-ID.');
         }
 
-        $response = $this->request(self::API_BASE . $repository->getApiPath() . '/zipball/' . $commitSha, $token, [], 300);
+        $this->downloadToFile(self::API_BASE . $repository->getApiPath() . '/zipball/' . $commitSha, [], $targetFile, $maxBytes, $token);
+    }
+
+    /**
+     * Lädt einen Release-Anhang (fertiges Plugin-ZIP des Herstellers) herunter.
+     */
+    public function downloadReleaseAsset(RepositoryReference $repository, ReleaseAsset $asset, string $targetFile, int $maxBytes, ?string $token): void
+    {
+        if ($asset->size > $maxBytes) {
+            throw new GithubUpdaterException('Das Archiv überschreitet die erlaubte Downloadgröße.');
+        }
+
+        $this->downloadToFile(
+            self::API_BASE . $repository->getApiPath() . '/releases/assets/' . $asset->id,
+            ['Accept' => 'application/octet-stream'],
+            $targetFile,
+            $maxBytes,
+            $token,
+        );
+    }
+
+    /**
+     * @param array<string, string> $headers
+     */
+    private function downloadToFile(string $url, array $headers, string $targetFile, int $maxBytes, ?string $token): void
+    {
+        $response = $this->request($url, $token, $headers, 300);
         $this->assertSuccessful($response->getStatusCode());
 
         $length = $response->getHeaders(false)['content-length'][0] ?? null;

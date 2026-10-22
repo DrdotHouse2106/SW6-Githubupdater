@@ -66,6 +66,19 @@
                 }) }}
             </p>
 
+            <p
+                v-if="selectedVersion"
+                class="dh-github-install-modal__package"
+                :class="`is--${selectedVersion.package}`"
+            >
+                <template v-if="selectedVersion.package === 'release'">
+                    {{ $t('dh-github-updater.install.packageRelease', { asset: selectedVersion.assetName }) }}
+                </template>
+                <template v-else>
+                    {{ $tc('dh-github-updater.install.packageSource') }}
+                </template>
+            </p>
+
             <mt-checkbox
                 v-model:checked="activateAfterInstall"
                 :label="$tc('dh-github-updater.install.activateAfterInstall')"

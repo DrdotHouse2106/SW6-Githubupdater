@@ -1,4 +1,5 @@
 const ApiService = Shopware.Classes.ApiService;
+const WARNINGS_KEY = 'dh-github-updater-warnings';
 
 /**
  * Zugriff auf die Admin-API-Endpunkte des GitHub-Updaters.
@@ -10,6 +11,43 @@ class DhGithubUpdaterApiService extends ApiService {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'dhGithubUpdaterApiService';
         this.sourcesPromise = null;
+        this.updateStatusPromise = null;
+    }
+
+    resetCaches() {
+        this.sourcesPromise = null;
+        this.updateStatusPromise = null;
+    }
+
+    getCatalog(refresh = false) {
+        return this.httpClient
+            .get(`${this.getApiBasePath()}/catalog`, {
+                params: refresh ? { refresh: 1 } : {},
+                headers: this.getBasicHeaders(),
+                timeout: 60000,
+            })
+            .then(ApiService.handleResponse);
+    }
+
+    /**
+     * Ergebnis der automatischen Update-Prüfung – wird von allen Plugin-Karten geteilt.
+     */
+    getUpdateStatus(refresh = false) {
+        if (refresh || this.updateStatusPromise === null) {
+            this.updateStatusPromise = this.httpClient
+                .get(`${this.getApiBasePath()}/update-status`, {
+                    params: refresh ? { refresh: 1 } : {},
+                    headers: this.getBasicHeaders(),
+                    timeout: 120000,
+                })
+                .then(ApiService.handleResponse)
+                .catch((error) => {
+                    this.updateStatusPromise = null;
+                    throw error;
+                });
+        }
+
+        return this.updateStatusPromise;
     }
 
     getVersions(repository) {
@@ -44,7 +82,7 @@ class DhGithubUpdaterApiService extends ApiService {
     }
 
     install(repository, ref, type) {
-        this.sourcesPromise = null;
+        this.resetCaches();
 
         return this.httpClient
             .post(`${this.getApiBasePath()}/install`, { repository, ref, type }, {
@@ -55,7 +93,7 @@ class DhGithubUpdaterApiService extends ApiService {
     }
 
     update(pluginName, ref, type) {
-        this.sourcesPromise = null;
+        this.resetCaches();
 
         return this.httpClient
             .post(`${this.getApiBasePath()}/update/${encodeURIComponent(pluginName)}`, { ref, type }, {
@@ -66,7 +104,7 @@ class DhGithubUpdaterApiService extends ApiService {
     }
 
     link(pluginName, repository) {
-        this.sourcesPromise = null;
+        this.resetCaches();
 
         return this.httpClient
             .post(`${this.getApiBasePath()}/link/${encodeURIComponent(pluginName)}`, { repository }, {
@@ -92,6 +130,35 @@ class DhGithubUpdaterApiService extends ApiService {
 
     unlink(pluginName) {
         return this.link(pluginName, '');
+    }
+
+    /**
+     * Hinweise zum installierten Paket überleben das Neuladen der Seite
+     * und werden danach in „Meine Erweiterungen“ angezeigt.
+     */
+    static rememberWarnings(pluginName, warnings) {
+        if (!Array.isArray(warnings) || warnings.length === 0) {
+            return;
+        }
+
+        try {
+            const stored = JSON.parse(window.sessionStorage.getItem(WARNINGS_KEY) || '[]');
+            stored.push({ pluginName, warnings });
+            window.sessionStorage.setItem(WARNINGS_KEY, JSON.stringify(stored));
+        } catch {
+            // sessionStorage nicht verfügbar – Hinweise entfallen
+        }
+    }
+
+    static takeWarnings() {
+        try {
+            const stored = JSON.parse(window.sessionStorage.getItem(WARNINGS_KEY) || '[]');
+            window.sessionStorage.removeItem(WARNINGS_KEY);
+
+            return Array.isArray(stored) ? stored : [];
+        } catch {
+            return [];
+        }
     }
 
     static getErrorMessage(error, fallback) {

@@ -5,6 +5,7 @@ namespace DhGithubUpdater\Controller;
 use DhGithubUpdater\Config\UpdaterConfig;
 use DhGithubUpdater\Exception\GithubUpdaterException;
 use DhGithubUpdater\Service\GithubPluginManager;
+use DhGithubUpdater\Service\UpdateChecker;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -26,6 +27,7 @@ class GithubUpdaterController
 {
     public function __construct(
         private readonly GithubPluginManager $manager,
+        private readonly UpdateChecker $updateChecker,
         private readonly UpdaterConfig $config,
         private readonly LoggerInterface $logger,
         private readonly bool $runtimeExtensionManagement,
@@ -51,6 +53,27 @@ class GithubUpdaterController
         return $this->handle($context, false, fn (): array => $this->manager->testConnection(
             $request->query->getString('repository'),
             $pluginName !== '' ? $pluginName : null,
+            $context,
+        ));
+    }
+
+    #[Route(path: '/api/_action/dh-github-updater/catalog', name: 'api.action.dh_github_updater.catalog', methods: ['GET'])]
+    public function catalog(Request $request, Context $context): JsonResponse
+    {
+        return $this->handle($context, false, fn (): array => $this->manager->catalog(
+            $request->query->getBoolean('refresh'),
+            $context,
+        ));
+    }
+
+    /**
+     * Ergebnis der automatischen Update-Prüfung (prüft neu, wenn veraltet oder refresh=1).
+     */
+    #[Route(path: '/api/_action/dh-github-updater/update-status', name: 'api.action.dh_github_updater.update_status', methods: ['GET'])]
+    public function updateStatus(Request $request, Context $context): JsonResponse
+    {
+        return $this->handle($context, false, fn (): array => $this->updateChecker->status(
+            $request->query->getBoolean('refresh'),
             $context,
         ));
     }

@@ -1,0 +1,59 @@
+name: Plugin für den Katalog vorschlagen
+description: Ein Shopware-6-Plugin auf GitHub in den Plugin-Katalog des Updaters aufnehmen lassen.
+title: "Katalog: <Plugin-Name>"
+labels: ["katalog"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke für deinen Vorschlag! Voraussetzungen stehen in der [CONTRIBUTING.md](https://github.com/DrdotHouse2106/SW6-Githubupdater/blob/main/CONTRIBUTING.md).
+        Am schnellsten geht es per Pull Request direkt an `src/Resources/catalog/plugins.json`.
+  - type: input
+    id: repository
+    attributes:
+      label: GitHub-Repository
+      placeholder: https://github.com/owner/repository
+    validations:
+      required: true
+  - type: input
+    id: pluginName
+    attributes:
+      label: Technischer Plugin-Name
+      description: Letzter Teil von `extra.shopware-plugin-class` in der composer.json (z. B. `SwagPayPal`).
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: Kategorie
+      options:
+        - payment (Zahlung)
+        - shipping (Versand & Lieferung)
+        - search (Suche)
+        - marketing (Marketing & Tracking)
+        - storefront (Storefront & Theme)
+        - performance (Performance)
+        - administration (Administration)
+        - language (Sprache)
+        - developer (Entwicklung)
+        - other (Sonstiges)
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Kurzbeschreibung (Deutsch und Englisch, je max. 400 Zeichen)
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checkliste
+      options:
+        - label: Die composer.json liegt im Hauptverzeichnis und hat `"type": "shopware-platform-plugin"`.
+          required: true
+        - label: Es gibt Releases/Tags mit Versionsnummern (z. B. `v1.2.0`) und passender `require.shopware/core`-Angabe.
+          required: true
+        - label: "„Verbindung testen“ im Updater zeigt keine Fehler."
+          required: true
+        - label: Es gibt ein fertiges ZIP als Release-Anhang ODER gebaute Administration/Storefront sind im Repository enthalten.

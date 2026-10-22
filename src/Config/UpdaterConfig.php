@@ -47,6 +47,47 @@ class UpdaterConfig
         return max(1, min($mb > 0 ? $mb : 50, 500)) * 1024 * 1024;
     }
 
+    public function isAutoCheckEnabled(): bool
+    {
+        $value = $this->systemConfigService->get(self::PREFIX . 'autoCheck');
+
+        return $value === null || (bool) $value;
+    }
+
+    public function isUpdateNotificationEnabled(): bool
+    {
+        $value = $this->systemConfigService->get(self::PREFIX . 'notifyUpdates');
+
+        return $value === null || (bool) $value;
+    }
+
+    /**
+     * Bereits gemeldete Versionen (Plugin-Name => Version), damit jede Version nur einmal gemeldet wird.
+     *
+     * @return array<string, string>
+     */
+    public function getNotifiedVersions(): array
+    {
+        $value = $this->systemConfigService->get('DhGithubUpdater.state.notifiedVersions');
+
+        return \is_array($value) ? array_filter($value, 'is_string') : [];
+    }
+
+    /**
+     * @param array<string, string> $versions
+     */
+    public function setNotifiedVersions(array $versions): void
+    {
+        $this->systemConfigService->set('DhGithubUpdater.state.notifiedVersions', $versions);
+    }
+
+    public function isRemoteCatalogEnabled(): bool
+    {
+        $value = $this->systemConfigService->get(self::PREFIX . 'remoteCatalog');
+
+        return $value === null || (bool) $value;
+    }
+
     public function getMaxTagsToCheck(): int
     {
         $count = $this->systemConfigService->getInt(self::PREFIX . 'maxTagsToCheck');

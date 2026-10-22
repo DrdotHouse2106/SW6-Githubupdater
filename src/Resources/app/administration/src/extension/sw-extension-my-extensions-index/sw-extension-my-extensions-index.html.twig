@@ -3,15 +3,31 @@
 
     <mt-button
         v-if="dhGithubUpdaterAllowed"
+        class="dh-github-updater__catalog-button"
+        variant="secondary"
+        @click="showDhGithubCatalogModal = true"
+    >
+        {{ $tc('dh-github-updater.catalog.button') }}
+    </mt-button>
+
+    <mt-button
+        v-if="dhGithubUpdaterAllowed"
         class="dh-github-updater__install-button"
         variant="secondary"
-        @click="showDhGithubInstallModal = true"
+        @click="dhGithubOpenInstall()"
     >
         {{ $tc('dh-github-updater.install.button') }}
     </mt-button>
 
+    <dh-github-catalog-modal
+        v-if="showDhGithubCatalogModal"
+        @install="dhGithubInstallFromCatalog"
+        @modal-close="showDhGithubCatalogModal = false"
+    />
+
     <dh-github-install-modal
         v-if="showDhGithubInstallModal"
+        :initial-repository="dhGithubInstallRepository"
         @modal-close="showDhGithubInstallModal = false"
     />
 {% endblock %}

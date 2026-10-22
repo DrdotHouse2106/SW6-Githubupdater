@@ -3,6 +3,8 @@
 namespace DhGithubUpdater\Service;
 
 use Composer\IO\NullIO;
+use DhGithubUpdater\Catalog\CatalogParser;
+use DhGithubUpdater\Catalog\CatalogProvider;
 use DhGithubUpdater\Config\UpdaterConfig;
 use DhGithubUpdater\Exception\GithubUpdaterException;
 use DhGithubUpdater\Github\GitRef;
@@ -13,6 +15,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginService;
@@ -44,7 +47,54 @@ class GithubPluginManager
         private readonly LockFactory $lockFactory,
         private readonly LoggerInterface $logger,
         private readonly ConnectionTester $connectionTester,
+        private readonly CatalogProvider $catalogProvider,
     ) {
+    }
+
+    /**
+     * Plugin-Katalog inkl. Status im Shop (installiert, verknüpft, erlaubt).
+     *
+     * @return array<string, mixed>
+     */
+    public function catalog(bool $refresh, Context $context): array
+    {
+        $catalog = $this->catalogProvider->load($refresh);
+        $allowList = $this->config->getAllowList();
+
+        $names = array_map(static fn ($entry): string => $entry->pluginName, $catalog['entries']);
+        $installed = [];
+        if ($names !== []) {
+            $criteria = (new Criteria())->addFilter(new EqualsAnyFilter('name', $names));
+            foreach ($this->pluginRepository->search($criteria, $context)->getEntities() as $plugin) {
+                /** @var PluginEntity $plugin */
+                $installed[strtolower($plugin->getName())] = [
+                    'version' => $plugin->getVersion(),
+                    'installed' => $plugin->getInstalledAt() !== null,
+                    'active' => $plugin->getActive(),
+                ];
+            }
+        }
+
+        $links = [];
+        foreach ($this->sourceLinkStore->all() as $link) {
+            $links[strtolower($link['pluginName'])] = $link['repository'];
+        }
+
+        $plugins = [];
+        foreach ($catalog['entries'] as $entry) {
+            $key = strtolower($entry->pluginName);
+            $plugins[] = $entry->toArray() + [
+                'allowed' => $allowList->isAllowed($entry->repository),
+                'plugin' => $installed[$key] ?? null,
+                'linkedRepository' => $links[$key] ?? null,
+            ];
+        }
+
+        return [
+            'source' => $catalog['source'],
+            'categories' => CatalogParser::CATEGORIES,
+            'plugins' => $plugins,
+        ];
     }
 
     /**
@@ -110,9 +160,10 @@ class GithubPluginManager
 
             return [
                 'pluginName' => $pluginName,
-                'version' => $candidate->manifest->version,
+                'version' => $package->manifest->version ?? $candidate->manifest->version,
                 'ref' => $candidate->ref->name,
                 'commit' => $candidate->ref->commitSha,
+                'warnings' => $package->warnings,
             ];
         });
     }
@@ -183,6 +234,7 @@ class GithubPluginManager
                 'ref' => $candidate->ref->name,
                 'commit' => $candidate->ref->commitSha,
                 'installed' => $plugin->getInstalledAt() !== null,
+                'warnings' => $package->warnings,
             ];
         });
     }
@@ -290,7 +342,37 @@ class GithubPluginManager
         return $this->sourceLinkStore->all();
     }
 
+    /**
+     * Bevorzugt das fertige Plugin-ZIP aus dem GitHub-Release (enthält bei vielen
+     * Herstellern die gebaute Administration und vendor/). Ist es unbrauchbar,
+     * wird der Quellcode des geprüften Commits verwendet.
+     */
     private function downloadAndStage(RepositoryReference $repository, VersionCandidate $candidate): StagedPackage
+    {
+        $asset = $candidate->asset;
+        if ($asset !== null) {
+            try {
+                return $this->stageVerified($candidate, function (string $zipFile) use ($repository, $asset): void {
+                    $this->client->downloadReleaseAsset($repository, $asset, $zipFile, $this->config->getMaxDownloadBytes(), $this->config->getToken());
+                });
+            } catch (GithubUpdaterException $e) {
+                $this->logger->warning('DhGithubUpdater: Release-Paket nicht verwendbar, nutze Quellcode des Tags.', [
+                    'repository' => $repository->getFullName(),
+                    'asset' => $asset->name,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        return $this->stageVerified($candidate, function (string $zipFile) use ($repository, $candidate): void {
+            $this->client->downloadZipball($repository, $candidate->ref->commitSha, $zipFile, $this->config->getMaxDownloadBytes(), $this->config->getToken());
+        });
+    }
+
+    /**
+     * @param callable(string): void $download
+     */
+    private function stageVerified(VersionCandidate $candidate, callable $download): StagedPackage
     {
         $zipFile = tempnam(sys_get_temp_dir(), 'dh-ghu-');
         if ($zipFile === false) {
@@ -298,14 +380,7 @@ class GithubPluginManager
         }
 
         try {
-            $this->client->downloadZipball(
-                $repository,
-                $candidate->ref->commitSha,
-                $zipFile,
-                $this->config->getMaxDownloadBytes(),
-                $this->config->getToken(),
-            );
-
+            $download($zipFile);
             $package = $this->deployer->stage($zipFile);
         } finally {
             @unlink($zipFile);

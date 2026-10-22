@@ -1,0 +1,175 @@
+{% block dh_github_catalog_modal %}
+<sw-modal
+    class="dh-github-catalog-modal"
+    :title="$tc('dh-github-updater.catalog.title')"
+    variant="large"
+    @modal-close="$emit('modal-close')"
+>
+    <p class="dh-github-catalog-modal__intro">
+        {{ $tc('dh-github-updater.catalog.intro') }}
+    </p>
+
+    <div class="dh-github-catalog-modal__toolbar">
+        <mt-text-field
+            v-model="term"
+            class="dh-github-catalog-modal__search"
+            :placeholder="$tc('dh-github-updater.catalog.search')"
+        />
+    </div>
+
+    <div
+        v-if="categoryOptions.length > 1"
+        class="dh-github-catalog-modal__categories"
+    >
+        <button
+            type="button"
+            class="dh-github-catalog-modal__chip"
+            :class="{ 'is--active': category === null }"
+            @click="category = null"
+        >
+            {{ $tc('dh-github-updater.catalog.all') }} ({{ plugins.length }})
+        </button>
+        <button
+            v-for="option in categoryOptions"
+            :key="option.value"
+            type="button"
+            class="dh-github-catalog-modal__chip"
+            :class="{ 'is--active': category === option.value }"
+            @click="category = option.value"
+        >
+            {{ option.label }} ({{ option.count }})
+        </button>
+    </div>
+
+    <sw-loader v-if="isLoading" />
+
+    <p
+        v-else-if="filteredPlugins.length === 0"
+        class="dh-github-catalog-modal__empty"
+    >
+        {{ $tc('dh-github-updater.catalog.empty') }}
+    </p>
+
+    <ul
+        v-else
+        class="dh-github-catalog-modal__list"
+    >
+        <li
+            v-for="plugin in filteredPlugins"
+            :key="plugin.pluginName"
+            class="dh-github-catalog-modal__item"
+        >
+            <div class="dh-github-catalog-modal__head">
+                <strong class="dh-github-catalog-modal__name">{{ plugin.name }}</strong>
+                <span class="dh-github-catalog-modal__badge">
+                    {{ $tc(`dh-github-updater.catalog.categories.${plugin.category}`) }}
+                </span>
+            </div>
+
+            <div class="dh-github-catalog-modal__meta">
+                {{ plugin.vendor }}<template v-if="plugin.license"> · {{ plugin.license }}</template>
+                ·
+                <a
+                    :href="plugin.repositoryUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >{{ plugin.repository }}</a>
+            </div>
+
+            <p class="dh-github-catalog-modal__description">
+                {{ description(plugin) }}
+            </p>
+
+            <div class="dh-github-catalog-modal__actions">
+                <template v-if="status(plugin) === 'installable'">
+                    <mt-button
+                        size="small"
+                        variant="primary"
+                        @click="$emit('install', plugin)"
+                    >
+                        {{ $tc('dh-github-updater.catalog.install') }}
+                    </mt-button>
+                </template>
+
+                <template v-else-if="status(plugin) === 'link'">
+                    <span class="dh-github-catalog-modal__state">
+                        {{ $t('dh-github-updater.catalog.installedNotLinked', { version: plugin.plugin.version }) }}
+                    </span>
+                    <mt-button
+                        size="small"
+                        variant="secondary"
+                        :is-loading="busyPlugin === plugin.pluginName"
+                        :disabled="busyPlugin !== null"
+                        @click="link(plugin)"
+                    >
+                        {{ $tc('dh-github-updater.catalog.link') }}
+                    </mt-button>
+                </template>
+
+                <span
+                    v-else-if="status(plugin) === 'linked'"
+                    class="dh-github-catalog-modal__state is--positive"
+                >
+                    {{ $t('dh-github-updater.catalog.linked', { version: plugin.plugin.version }) }}
+                </span>
+
+                <span
+                    v-else-if="status(plugin) === 'linkedOther'"
+                    class="dh-github-catalog-modal__state"
+                >
+                    {{ $t('dh-github-updater.catalog.linkedOther', { repository: plugin.linkedRepository }) }}
+                </span>
+
+                <span
+                    v-else
+                    class="dh-github-catalog-modal__state is--muted"
+                >
+                    {{ $tc('dh-github-updater.catalog.notAllowed') }}
+                </span>
+            </div>
+        </li>
+    </ul>
+
+    <div class="dh-github-catalog-modal__contribute">
+        <mt-icon
+            name="regular-github"
+            size="16px"
+        />
+        <span>
+            {{ $tc('dh-github-updater.catalog.contributeText') }}
+            <a
+                :href="contributeUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+            >{{ $tc('dh-github-updater.catalog.contributeLink') }}</a>
+            ·
+            <a
+                :href="contributingDocUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+            >{{ $tc('dh-github-updater.catalog.contributeDoc') }}</a>
+        </span>
+    </div>
+
+    <template #modal-footer>
+        <span class="dh-github-catalog-modal__source">
+            {{ source === 'remote' ? $tc('dh-github-updater.catalog.sourceRemote') : $tc('dh-github-updater.catalog.sourceBundled') }}
+        </span>
+        <mt-button
+            size="small"
+            variant="secondary"
+            :disabled="isLoading"
+            @click="load(true)"
+        >
+            {{ $tc('dh-github-updater.catalog.refresh') }}
+        </mt-button>
+        <mt-button
+            size="small"
+            variant="primary"
+            @click="$emit('modal-close')"
+        >
+            {{ $tc('global.default.close') }}
+        </mt-button>
+    </template>
+</sw-modal>
+{% endblock %}

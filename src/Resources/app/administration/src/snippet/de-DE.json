@@ -16,7 +16,9 @@
             "summary": "Plugin {plugin} aus {repository} (Commit {commit}) wird installiert.",
             "activateAfterInstall": "Nach dem Herunterladen direkt installieren und aktivieren",
             "submit": "Installieren",
-            "success": "Plugin \"{name}\" wurde aus GitHub installiert."
+            "success": "Plugin \"{name}\" wurde aus GitHub installiert.",
+            "packageRelease": "Es wird das fertige Release-Paket „{asset}“ des Herstellers installiert.",
+            "packageSource": "Es wird der Quellcode dieser Version installiert (kein Release-Paket vorhanden)."
         },
         "card": {
             "notLinked": "nicht verknüpft",
@@ -32,7 +34,8 @@
             "updateSuccess": "{name} wurde aus GitHub aktualisiert.",
             "linkSuccess": "{name} ist jetzt mit {repository} verknüpft.",
             "unlinkSuccess": "Die GitHub-Verknüpfung von {name} wurde entfernt. Das Plugin selbst bleibt unverändert.",
-            "noReleases": "Für {name} wurde auf GitHub keine passende Version gefunden. Im Repository ein Release anlegen (z. B. Tag v1.0.0) oder in der Konfiguration „Installation aus Branches“ aktivieren. Details: „…“ → „Verbindung testen“."
+            "noReleases": "Für {name} wurde auf GitHub keine passende Version gefunden. Im Repository ein Release anlegen (z. B. Tag v1.0.0) oder in der Konfiguration „Installation aus Branches“ aktivieren. Details: „…“ → „Verbindung testen“.",
+            "lastChecked": "Zuletzt geprüft: {date}"
         },
         "linkModal": {
             "title": "{name} mit GitHub verknüpfen",
@@ -53,6 +56,43 @@
                 "releases": "Releases",
                 "compatibility": "Kompatibilität"
             }
+        },
+        "catalog": {
+            "button": "Plugin-Katalog",
+            "title": "Plugin-Katalog",
+            "intro": "Geprüfte Shopware-Plugins, die direkt aus GitHub installiert und aktualisiert werden können. Wo der Hersteller ein fertiges Release-Paket anbietet, wird dieses verwendet.",
+            "search": "Plugins durchsuchen …",
+            "all": "Alle",
+            "empty": "Keine passenden Plugins gefunden.",
+            "install": "Installieren …",
+            "link": "Mit GitHub verknüpfen",
+            "installedNotLinked": "Installiert (v{version}), nicht verknüpft",
+            "linked": "✓ Installiert (v{version}) und verknüpft",
+            "linkedOther": "Verknüpft mit {repository}",
+            "notAllowed": "Nicht in „Erlaubte Repositories“",
+            "contributeText": "Dein Plugin fehlt?",
+            "contributeLink": "Plugin vorschlagen",
+            "contributeDoc": "So trägst du bei",
+            "sourceRemote": "Katalog: aktuelle Fassung von GitHub",
+            "sourceBundled": "Katalog: mitgelieferte Fassung",
+            "refresh": "Aktualisieren",
+            "categories": {
+                "payment": "Zahlung",
+                "shipping": "Versand & Lieferung",
+                "search": "Suche",
+                "marketing": "Marketing & Tracking",
+                "storefront": "Storefront & Theme",
+                "performance": "Performance",
+                "administration": "Administration",
+                "language": "Sprache",
+                "developer": "Entwicklung",
+                "other": "Sonstiges"
+            }
+        },
+        "warnings": {
+            "adminNotBuilt": "Das Paket enthält keine gebaute Administration – Einstellungsseiten des Plugins fehlen eventuell. Lösung: ein Release mit fertigem ZIP verwenden oder die Administration bauen (siehe README).",
+            "storefrontNotBuilt": "Das Paket enthält kein gebautes Storefront-JavaScript – Funktionen im Shop fehlen eventuell. Lösung: ein Release mit fertigem ZIP verwenden oder die Storefront bauen.",
+            "missingDependencies": "Benötigt zusätzliche Composer-Pakete: {packages}. Falls die Installation fehlschlägt, im Shop-Verzeichnis „composer require {packages}“ ausführen."
         }
     }
 }

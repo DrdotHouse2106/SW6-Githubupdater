@@ -21,6 +21,7 @@
         <service id="DhGithubUpdater\Service\PluginDeployer">
             <argument>%kernel.project_dir%</argument>
             <argument type="service" id="DhGithubUpdater\Package\SafeZipExtractor"/>
+            <argument type="service" id="DhGithubUpdater\Package\PackageInspector"/>
         </service>
 
         <service id="DhGithubUpdater\Service\SourceLinkStore">
@@ -46,6 +47,38 @@
             <argument type="service" id="lock.factory"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="DhGithubUpdater\Service\ConnectionTester"/>
+            <argument type="service" id="DhGithubUpdater\Catalog\CatalogProvider"/>
+        </service>
+
+        <service id="DhGithubUpdater\Catalog\CatalogProvider">
+            <argument type="service" id="DhGithubUpdater\Github\GithubApiClient"/>
+            <argument type="service" id="DhGithubUpdater\Config\UpdaterConfig"/>
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="DhGithubUpdater\Package\PackageInspector"/>
+
+        <service id="DhGithubUpdater\Service\UpdateChecker">
+            <argument type="service" id="DhGithubUpdater\Service\GithubPluginManager"/>
+            <argument type="service" id="DhGithubUpdater\Service\SourceLinkStore"/>
+            <argument type="service" id="DhGithubUpdater\Config\UpdaterConfig"/>
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="plugin.repository"/>
+            <argument type="service" id="notification.repository" on-invalid="null"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="DhGithubUpdater\ScheduledTask\CheckUpdatesTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="DhGithubUpdater\ScheduledTask\CheckUpdatesTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="DhGithubUpdater\Service\UpdateChecker"/>
+            <argument type="service" id="DhGithubUpdater\Config\UpdaterConfig"/>
+            <tag name="messenger.message_handler"/>
         </service>
 
         <service id="DhGithubUpdater\Service\ConnectionTester">
@@ -57,6 +90,7 @@
 
         <service id="DhGithubUpdater\Controller\GithubUpdaterController" public="true">
             <argument type="service" id="DhGithubUpdater\Service\GithubPluginManager"/>
+            <argument type="service" id="DhGithubUpdater\Service\UpdateChecker"/>
             <argument type="service" id="DhGithubUpdater\Config\UpdaterConfig"/>
             <argument type="service" id="logger"/>
             <argument>%shopware.deployment.runtime_extension_management%</argument>

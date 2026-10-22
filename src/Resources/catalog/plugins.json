@@ -1,0 +1,269 @@
+{
+    "version": 1,
+    "plugins": [
+        {
+            "repository": "DrdotHouse2106/SW6-Githubupdater",
+            "pluginName": "DhGithubUpdater",
+            "name": "GitHub Plugin-Updater",
+            "vendor": "DrdotHouse",
+            "category": "administration",
+            "license": "MIT",
+            "description": {
+                "de-DE": "Installiert und aktualisiert Plugins direkt aus GitHub – mit Plugin-Katalog, Verbindungstest und Sicherung beim Update.",
+                "en-GB": "Installs and updates plugins directly from GitHub – with plugin catalog, connection test and backup on update."
+            }
+        },
+        {
+            "repository": "DrdotHouse2106/SW6-Theme",
+            "pluginName": "NovaTheme",
+            "name": "Nova Theme",
+            "vendor": "DrdotHouse",
+            "category": "storefront",
+            "license": "MIT",
+            "description": {
+                "de-DE": "Modernes, modulares und schnelles Theme für alle Bildschirmgrößen inkl. „Zuletzt angesehen“-Slider und modernem Checkout.",
+                "en-GB": "Modern, modular and fast theme for all screen sizes incl. recently viewed slider and modern checkout."
+            }
+        },
+        {
+            "repository": "DrdotHouse2106/SW-6-Google-Tag-Manager",
+            "pluginName": "NovaTagManager",
+            "name": "Nova Tag Manager",
+            "vendor": "DrdotHouse",
+            "category": "marketing",
+            "license": "MIT",
+            "description": {
+                "de-DE": "Google Tag Manager mit GA4-E-Commerce-Datenlayer, Google-Ads-Remarketing und Consent Mode v2.",
+                "en-GB": "Google Tag Manager with GA4 e-commerce data layer, Google Ads remarketing and Consent Mode v2."
+            }
+        },
+        {
+            "repository": "DrdotHouse2106/SW6-Intelligente-Suche",
+            "pluginName": "NovaSearch",
+            "name": "Nova Suche",
+            "vendor": "DrdotHouse",
+            "category": "search",
+            "license": "MIT",
+            "description": {
+                "de-DE": "Suchfenster mit Bildern, Filtern und Sortierung. Lernt aus Suchen, Klicks und Käufen und verbessert Suchen ohne Treffer optional mit Claude.",
+                "en-GB": "Search layer with images, filters and sorting. Learns from searches, clicks and purchases and optionally improves zero-result searches with Claude."
+            }
+        },
+        {
+            "repository": "DrdotHouse2106/SW6-Dynamische-Lieferzeiten",
+            "pluginName": "MonthlyDeliveryPlugin",
+            "name": "Dynamische Lieferzeiten",
+            "vendor": "DrdotHouse",
+            "category": "shipping",
+            "license": "MIT",
+            "description": {
+                "de-DE": "Berechnet je Lieferant den nächsten festen Versandtermin samt Bestellschluss und zeigt ihn auf Produktseite, im Warenkorb und im Checkout an.",
+                "en-GB": "Calculates the next fixed shipping date and order cut-off per supplier and shows it on product page, cart and checkout."
+            }
+        },
+        {
+            "repository": "DrdotHouse2106/SW6-Fahrzeugauswahl",
+            "pluginName": "FahrzeugSchnellauswahl",
+            "name": "Fahrzeug-Schnellauswahl",
+            "vendor": "Marcel Ulber",
+            "category": "storefront",
+            "license": "MIT",
+            "description": {
+                "de-DE": "Horizontale Fahrzeugauswahl im Header, die die Produktlisten über Shopware-Eigenschaften filtert.",
+                "en-GB": "Horizontal vehicle selector in the header that filters product listings via Shopware properties."
+            }
+        },
+        {
+            "repository": "shopware/SwagLanguagePack",
+            "pluginName": "SwagLanguagePack",
+            "name": "Sprachpaket",
+            "vendor": "shopware AG",
+            "category": "language",
+            "license": "MIT",
+            "description": {
+                "de-DE": "Offizielles Sprachpaket mit allen von Shopware angebotenen Übersetzungen für Administration und Storefront.",
+                "en-GB": "Official language pack with all translations provided by Shopware for administration and storefront."
+            }
+        },
+        {
+            "repository": "shopware/SwagPayPal",
+            "pluginName": "SwagPayPal",
+            "name": "PayPal",
+            "vendor": "shopware AG",
+            "category": "payment",
+            "license": "MIT",
+            "description": {
+                "de-DE": "Offizielle PayPal-Integration: PayPal Checkout, Später bezahlen, Lastschrift, Kreditkarte und weitere Zahlungsarten.",
+                "en-GB": "Official PayPal integration: PayPal Checkout, Pay Later, direct debit, credit card and more payment methods."
+            }
+        },
+        {
+            "repository": "FriendsOfShopware/FroshTools",
+            "pluginName": "FroshTools",
+            "name": "Frosh Tools",
+            "vendor": "FriendsOfShopware",
+            "category": "administration",
+            "license": "MIT",
+            "description": {
+                "de-DE": "Werkzeugkasten für den Shopbetrieb: Cache-Verwaltung, Log-Viewer, Warteschlangen, geplante Aufgaben und Systemprüfung.",
+                "en-GB": "Toolbox for shop operations: cache management, log viewer, queues, scheduled tasks and system check."
+            }
+        },
+        {
+            "repository": "FriendsOfShopware/FroshDevelopmentHelper",
+            "pluginName": "FroshDevelopmentHelper",
+            "name": "Frosh Development Helper",
+            "vendor": "FriendsOfShopware",
+            "category": "developer",
+            "license": "MIT",
+            "description": {
+                "de-DE": "Hilfsfunktionen für die Plugin-Entwicklung. Nur für Entwicklungs- und Testumgebungen gedacht.",
+                "en-GB": "Helpers for plugin development. Intended for development and test environments only."
+            }
+        },
+        {
+            "repository": "FriendsOfShopware/FroshLazySizes",
+            "pluginName": "FroshLazySizes",
+            "name": "Frosh Lazy Sizes",
+            "vendor": "FriendsOfShopware",
+            "category": "performance",
+            "license": "MIT",
+            "description": {
+                "de-DE": "Berechnet automatisch die passende Bildgröße und lädt Bilder erst, wenn sie sichtbar werden.",
+                "en-GB": "Automatically calculates the matching image size and loads images only when they become visible."
+            }
+        },
+        {
+            "repository": "FriendsOfShopware/FroshPlatformThumbnailProcessor",
+            "pluginName": "FroshPlatformThumbnailProcessor",
+            "name": "Frosh Thumbnail Processor",
+            "vendor": "FriendsOfShopware",
+            "category": "performance",
+            "license": "MIT",
+            "description": {
+                "de-DE": "Erzeugt Vorschaubilder in Echtzeit über einen externen Dienst (inkl. WebP) statt sie im Shop zu speichern.",
+                "en-GB": "Generates thumbnails on the fly via an external service (incl. WebP) instead of storing them in the shop."
+            }
+        },
+        {
+            "repository": "FriendsOfShopware/FroshPlatformBunnycdnMediaStorage",
+            "pluginName": "FroshPlatformBunnycdnMediaStorage",
+            "name": "Frosh BunnyCDN Media Storage",
+            "vendor": "FriendsOfShopware",
+            "category": "performance",
+            "license": "MIT",
+            "description": {
+                "de-DE": "Speichert Mediendateien bei BunnyCDN und liefert sie von dort aus – schneller und mit weniger Speicherplatz im Shop.",
+                "en-GB": "Stores media files on BunnyCDN and serves them from there – faster and with less storage in the shop."
+            }
+        },
+        {
+            "repository": "mollie/Shopware6",
+            "pluginName": "MolliePayments",
+            "name": "Mollie",
+            "vendor": "Mollie B.V.",
+            "category": "payment",
+            "license": "MIT",
+            "description": {
+                "de-DE": "Zahlungsanbieter mit allen wichtigen internationalen und lokalen Zahlungsarten in einer Integration.",
+                "en-GB": "Payment provider with all major international and local payment methods in one integration."
+            }
+        },
+        {
+            "repository": "PAYONE-GmbH/shopware-6",
+            "pluginName": "PayonePayment",
+            "name": "PAYONE",
+            "vendor": "PAYONE GmbH",
+            "category": "payment",
+            "license": "MIT",
+            "description": {
+                "de-DE": "Offizielle Integration des Zahlungsdienstleisters PAYONE.",
+                "en-GB": "Official integration of the payment service provider PAYONE."
+            }
+        },
+        {
+            "repository": "Adyen/adyen-shopware6",
+            "pluginName": "AdyenPaymentShopware6",
+            "name": "Adyen",
+            "vendor": "Adyen",
+            "category": "payment",
+            "license": "MIT",
+            "description": {
+                "de-DE": "Offizielle Integration des Zahlungsdienstleisters Adyen.",
+                "en-GB": "Official integration of the payment service provider Adyen."
+            }
+        },
+        {
+            "repository": "MultiSafepay/shopware6",
+            "pluginName": "MltisafeMultiSafepay",
+            "name": "MultiSafepay",
+            "vendor": "MultiSafepay",
+            "category": "payment",
+            "license": "MIT",
+            "description": {
+                "de-DE": "Online-Bezahlung mit über 20 Zahlungsarten.",
+                "en-GB": "Online payments with more than 20 payment methods."
+            }
+        },
+        {
+            "repository": "buckaroo-it/Shopware_6",
+            "pluginName": "BuckarooPayments",
+            "name": "Buckaroo",
+            "vendor": "Buckaroo",
+            "category": "payment",
+            "license": "proprietary",
+            "description": {
+                "de-DE": "Offizielles Zahlungs-Plugin von Buckaroo mit vielen lokalen und internationalen Zahlungsarten.",
+                "en-GB": "Official Buckaroo payment plugin with many local and international payment methods."
+            }
+        },
+        {
+            "repository": "pfpayments/shopware-6",
+            "pluginName": "PostFinanceCheckoutPayment",
+            "name": "PostFinance Checkout (Schweiz)",
+            "vendor": "PostFinance",
+            "category": "payment",
+            "license": "Apache-2.0",
+            "description": {
+                "de-DE": "Integration von PostFinance Checkout für Shops in der Schweiz.",
+                "en-GB": "PostFinance Checkout integration for shops in Switzerland."
+            }
+        },
+        {
+            "repository": "Twint-AG/twint-shopware-plugin",
+            "pluginName": "TwintPayment",
+            "name": "TWINT (Schweiz)",
+            "vendor": "TWINT AG",
+            "category": "payment",
+            "license": "MIT",
+            "description": {
+                "de-DE": "Bezahlen mit der Schweizer Bezahl-App TWINT.",
+                "en-GB": "Payments with the Swiss payment app TWINT."
+            }
+        },
+        {
+            "repository": "wallee-payment/shopware-6",
+            "pluginName": "WalleePayment",
+            "name": "wallee",
+            "vendor": "wallee",
+            "category": "payment",
+            "license": "Apache-2.0",
+            "description": {
+                "de-DE": "Integration der Zahlungsplattform wallee.",
+                "en-GB": "Integration of the wallee payment platform."
+            }
+        },
+        {
+            "repository": "crehler/CrehlerTpay",
+            "pluginName": "CrehlerTpayShopwarePayment",
+            "name": "Tpay (Polen)",
+            "vendor": "Tpay / Crehler",
+            "category": "payment",
+            "license": "MIT",
+            "description": {
+                "de-DE": "Integration des polnischen Zahlungsanbieters Tpay.",
+                "en-GB": "Integration of the Polish payment provider Tpay."
+            }
+        }
+    ]
+}

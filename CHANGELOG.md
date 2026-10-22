@@ -1,3 +1,11 @@
+# 1.2.0
+- Neu: Plugin-Katalog („Plugin-Katalog“ in Meine Erweiterungen) mit Suche, Kategorien und Status je Plugin; Installieren bzw. Verknüpfen mit einem Klick. Katalog wird alle 6 Stunden von GitHub aktualisiert, Fallback auf mitgelieferte Fassung
+- Neu: Eigene Plugins beitragen per Pull Request oder Issue-Formular („Plugin vorschlagen“), CONTRIBUTING.md
+- Neu: Fertige Release-Pakete (ZIP-Anhang am GitHub-Release) werden bevorzugt installiert – mit gebauter Administration und `vendor/`; Fallback auf Quellcode
+- Neu: Automatische Update-Prüfung alle 12 Stunden (geplante Aufgabe), Updates direkt auf der Plugin-Karte, einmalige Benachrichtigung je neuer Version
+- Neu: Hinweise nach Installation/Update bei fehlender gebauter Administration/Storefront oder fehlenden Composer-Paketen
+- Neue Admin-API-Endpunkte `catalog` und `update-status`
+
 # 1.1.1
 - Meldungen zeigen wieder den Plugin-Namen an (Platzhalter gingen verloren)
 - „Updates prüfen“ unterscheidet jetzt zwischen „auf dem neuesten Stand“ (mit neuester Version) und „keine passende Version/kein Release gefunden“

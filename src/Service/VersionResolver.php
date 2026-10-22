@@ -6,6 +6,7 @@ use DhGithubUpdater\Config\UpdaterConfig;
 use DhGithubUpdater\Exception\GithubUpdaterException;
 use DhGithubUpdater\Github\GitRef;
 use DhGithubUpdater\Github\GithubApiClient;
+use DhGithubUpdater\Github\ReleaseAsset;
 use DhGithubUpdater\Github\RepositoryReference;
 use DhGithubUpdater\Package\CompatibilityChecker;
 use DhGithubUpdater\Package\PluginManifest;
@@ -38,9 +39,11 @@ class VersionResolver
     {
         $token = $this->config->getToken();
         $candidates = [];
+        $releaseAssets = null;
 
         foreach ($this->selectTags($repository, $token) as $tag) {
-            $candidate = $this->buildCandidate($repository, $tag, $token);
+            $releaseAssets ??= $this->loadReleaseAssets($repository, $token);
+            $candidate = $this->buildCandidate($repository, $tag, $token, $releaseAssets[$tag->name] ?? []);
             if ($candidate !== null) {
                 $candidates[] = $candidate;
             }
@@ -92,7 +95,9 @@ class VersionResolver
                 ), 422);
             }
 
-            return new VersionCandidate($ref, $manifest);
+            $assets = $refType === GitRef::TYPE_TAG ? ($this->loadReleaseAssets($repository, $token)[$ref->name] ?? []) : [];
+
+            return new VersionCandidate($ref, $manifest, $this->selectAsset($assets, $manifest));
         }
 
         throw new GithubUpdaterException('Die ausgewählte Version existiert im Repository nicht (mehr).', 404);
@@ -137,7 +142,10 @@ class VersionResolver
         return \array_slice($selected, 0, self::MAX_BRANCHES_TO_CHECK);
     }
 
-    private function buildCandidate(RepositoryReference $repository, GitRef $ref, ?string $token): ?VersionCandidate
+    /**
+     * @param list<ReleaseAsset> $assets
+     */
+    private function buildCandidate(RepositoryReference $repository, GitRef $ref, ?string $token, array $assets = []): ?VersionCandidate
     {
         try {
             $manifest = $this->loadManifest($repository, $ref->commitSha, $token);
@@ -153,7 +161,32 @@ class VersionResolver
             return null;
         }
 
-        return new VersionCandidate($ref, $manifest);
+        return new VersionCandidate($ref, $manifest, $this->selectAsset($assets, $manifest));
+    }
+
+    /**
+     * Release-Anhänge sind optional: Fehler beim Abruf führen nur dazu,
+     * dass der Quellcode des Tags verwendet wird.
+     *
+     * @return array<string, list<ReleaseAsset>>
+     */
+    private function loadReleaseAssets(RepositoryReference $repository, ?string $token): array
+    {
+        try {
+            return $this->client->listReleaseAssets($repository, $token);
+        } catch (GithubUpdaterException) {
+            return [];
+        }
+    }
+
+    /**
+     * @param list<ReleaseAsset> $assets
+     */
+    private function selectAsset(array $assets, PluginManifest $manifest): ?ReleaseAsset
+    {
+        $asset = ReleaseAsset::select($assets, $manifest->pluginName);
+
+        return $asset !== null && $asset->size <= $this->config->getMaxDownloadBytes() ? $asset : null;
     }
 
     private function loadManifest(RepositoryReference $repository, string $commitSha, ?string $token): ?PluginManifest

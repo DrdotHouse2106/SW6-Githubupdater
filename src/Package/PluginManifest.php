@@ -17,6 +17,8 @@ final class PluginManifest
         public readonly string $pluginClass,
         public readonly ?string $version,
         public readonly ?string $shopwareConstraint,
+        /** @var list<string> Composer-Pakete außerhalb von PHP, Erweiterungen und Shopware selbst */
+        public readonly array $packageDependencies = [],
     ) {
     }
 
@@ -65,6 +67,17 @@ final class PluginManifest
             $constraint = null;
         }
 
-        return new self($name, $class, $version, $constraint);
+        $dependencies = [];
+        foreach (\is_array($data['require'] ?? null) ? $data['require'] : [] as $package => $_) {
+            $package = (string) $package;
+            if (preg_match('#^[a-z0-9]([_.-]?[a-z0-9]+)*/[a-z0-9](([_.]|-{1,2})?[a-z0-9]+)*$#', $package)
+                && !str_starts_with($package, 'shopware/')
+                && \count($dependencies) < 50
+            ) {
+                $dependencies[] = $package;
+            }
+        }
+
+        return new self($name, $class, $version, $constraint, $dependencies);
     }
 }

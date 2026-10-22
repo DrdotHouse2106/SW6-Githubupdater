@@ -3,6 +3,7 @@
 namespace DhGithubUpdater\Service;
 
 use DhGithubUpdater\Github\GitRef;
+use DhGithubUpdater\Github\ReleaseAsset;
 use DhGithubUpdater\Package\PluginManifest;
 
 final class VersionCandidate
@@ -10,11 +11,13 @@ final class VersionCandidate
     public function __construct(
         public readonly GitRef $ref,
         public readonly PluginManifest $manifest,
+        // Fertiges Plugin-ZIP aus dem GitHub-Release; null = Quellcode des Tags/Branches
+        public readonly ?ReleaseAsset $asset = null,
     ) {
     }
 
     /**
-     * @return array{ref: string, type: string, commit: string, version: ?string, pluginName: string, label: string}
+     * @return array{ref: string, type: string, commit: string, version: ?string, pluginName: string, label: string, package: string, assetName: ?string}
      */
     public function toArray(): array
     {
@@ -33,6 +36,8 @@ final class VersionCandidate
             'version' => $this->manifest->version,
             'pluginName' => $this->manifest->pluginName,
             'label' => $label,
+            'package' => $this->asset !== null ? 'release' : 'source',
+            'assetName' => $this->asset?->name,
         ];
     }
 }

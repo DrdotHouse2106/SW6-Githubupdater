@@ -32,6 +32,7 @@ Shopware.Component.override('sw-extension-card-base', {
                 testResult: null,
                 updates: null,
                 selectedKey: null,
+                checkedAt: null,
             },
         };
     },
@@ -84,6 +85,16 @@ Shopware.Component.override('sw-extension-card-base', {
             }));
         },
 
+        dhGithubCheckedTitle() {
+            if (!this.dhGithub.checkedAt) {
+                return '';
+            }
+
+            return this.$t('dh-github-updater.card.lastChecked', {
+                date: new Date(this.dhGithub.checkedAt * 1000).toLocaleString(),
+            });
+        },
+
         dhGithubSelectedUpdate() {
             return (this.dhGithub.updates || [])
                 .find((update) => `${update.type}:${update.ref}` === this.dhGithub.selectedKey) || null;
@@ -105,10 +116,33 @@ Shopware.Component.override('sw-extension-card-base', {
                 const source = result.sources.find((entry) => entry.pluginName === this.extension.name);
                 this.dhGithub.repository = source?.repository ?? null;
                 this.dhGithub.installedRef = source?.installedRef ?? null;
+
+                if (this.dhGithub.repository) {
+                    this.dhGithubLoadUpdateStatus();
+                }
             } catch {
                 this.dhGithub.repository = null;
             } finally {
                 this.dhGithub.loaded = true;
+            }
+        },
+
+        /**
+         * Ergebnis der automatischen Prüfung übernehmen – verfügbare Updates
+         * erscheinen so ohne Klick direkt auf der Karte.
+         */
+        async dhGithubLoadUpdateStatus() {
+            try {
+                const status = await this.dhGithubUpdaterApiService.getUpdateStatus();
+                const entry = status.plugins?.[this.extension.name];
+                this.dhGithub.checkedAt = status.checkedAt;
+
+                if (entry && !entry.error && this.dhGithub.updates === null && entry.updates.length > 0) {
+                    this.dhGithub.updates = entry.updates;
+                    this.dhGithub.selectedKey = this.dhGithubUpdateOptions[0]?.value ?? null;
+                }
+            } catch {
+                // Automatische Prüfung ist optional – manuell prüfen bleibt möglich
             }
         },
 
@@ -199,6 +233,7 @@ Shopware.Component.override('sw-extension-card-base', {
             try {
                 const result = await this.dhGithubUpdaterApiService.check(this.extension.name);
                 this.dhGithub.updates = result.updates;
+                this.dhGithub.checkedAt = Math.floor(Date.now() / 1000);
                 this.dhGithub.selectedKey = this.dhGithubUpdateOptions[0]?.value ?? null;
 
                 if (result.updates.length === 0 && !result.latestVersion) {
@@ -241,6 +276,7 @@ Shopware.Component.override('sw-extension-card-base', {
                 this.createNotificationSuccess({
                     message: this.$t('dh-github-updater.card.updateSuccess', { name: this.extension.label || this.extension.name }),
                 });
+                DhGithubUpdaterApiService.rememberWarnings(this.extension.label || this.extension.name, result.warnings);
 
                 this.clearCacheAndReloadPage();
             } catch (error) {

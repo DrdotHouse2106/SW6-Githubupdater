@@ -67,4 +67,41 @@ shopware/SwagPayPal</placeholder>
             <max>50</max>
         </input-field>
     </card>
+
+    <card>
+        <title>Update check</title>
+        <title lang="de-DE">Update-Prüfung</title>
+
+        <input-field type="bool">
+            <name>autoCheck</name>
+            <label>Automatically check linked plugins for updates (every 12 hours)</label>
+            <label lang="de-DE">Verknüpfte Plugins automatisch auf Updates prüfen (alle 12 Stunden)</label>
+            <helpText>Runs as scheduled task. Without a running task runner, the check runs when "My extensions" is opened and the last result is older than 12 hours.</helpText>
+            <helpText lang="de-DE">Läuft als geplante Aufgabe. Laufen keine geplanten Aufgaben (kein Cron/Worker), wird beim Öffnen von „Meine Erweiterungen“ geprüft, sobald das letzte Ergebnis älter als 12 Stunden ist.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
+            <name>notifyUpdates</name>
+            <label>Notify about new versions in the administration (bell)</label>
+            <label lang="de-DE">Neue Versionen in der Administration melden (Glocke)</label>
+            <helpText>Each new version is reported only once, visible to administrators.</helpText>
+            <helpText lang="de-DE">Jede neue Version wird nur einmal gemeldet, sichtbar für Administratoren.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+    </card>
+
+    <card>
+        <title>Plugin catalog</title>
+        <title lang="de-DE">Plugin-Katalog</title>
+
+        <input-field type="bool">
+            <name>remoteCatalog</name>
+            <label>Load the current catalog from GitHub</label>
+            <label lang="de-DE">Aktuellen Katalog von GitHub laden</label>
+            <helpText>New plugins in the catalog appear without updating the updater (refreshed every 6 hours via api.github.com). If disabled, the catalog shipped with this version is used.</helpText>
+            <helpText lang="de-DE">Neu aufgenommene Plugins erscheinen, ohne dass der Updater aktualisiert werden muss (Abruf alle 6 Stunden über api.github.com). Wenn deaktiviert, wird der mit dieser Version ausgelieferte Katalog verwendet.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+    </card>
 </config>

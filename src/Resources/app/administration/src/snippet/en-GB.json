@@ -16,7 +16,9 @@
             "summary": "Plugin {plugin} from {repository} (commit {commit}) will be installed.",
             "activateAfterInstall": "Install and activate right after downloading",
             "submit": "Install",
-            "success": "Plugin \"{name}\" has been installed from GitHub."
+            "success": "Plugin \"{name}\" has been installed from GitHub.",
+            "packageRelease": "The ready-made release package \"{asset}\" provided by the vendor will be installed.",
+            "packageSource": "The source code of this version will be installed (no release package available)."
         },
         "card": {
             "notLinked": "not linked",
@@ -32,7 +34,8 @@
             "updateSuccess": "{name} has been updated from GitHub.",
             "linkSuccess": "{name} is now linked to {repository}.",
             "unlinkSuccess": "The GitHub link of {name} has been removed. The plugin itself is unchanged.",
-            "noReleases": "No matching version of {name} was found on GitHub. Create a release (e.g. tag v1.0.0) or enable branch installs. Details: \"…\" → \"Test connection\"."
+            "noReleases": "No matching version of {name} was found on GitHub. Create a release (e.g. tag v1.0.0) or enable branch installs. Details: \"…\" → \"Test connection\".",
+            "lastChecked": "Last checked: {date}"
         },
         "linkModal": {
             "title": "Link {name} to GitHub",
@@ -53,6 +56,43 @@
                 "releases": "Releases",
                 "compatibility": "Compatibility"
             }
+        },
+        "catalog": {
+            "button": "Plugin catalog",
+            "title": "Plugin catalog",
+            "intro": "Reviewed Shopware plugins that can be installed and updated directly from GitHub. Where the vendor provides a ready-made release package, it is used.",
+            "search": "Search plugins …",
+            "all": "All",
+            "empty": "No matching plugins found.",
+            "install": "Install …",
+            "link": "Link with GitHub",
+            "installedNotLinked": "Installed (v{version}), not linked",
+            "linked": "✓ Installed (v{version}) and linked",
+            "linkedOther": "Linked with {repository}",
+            "notAllowed": "Not in \"Allowed repositories\"",
+            "contributeText": "Your plugin is missing?",
+            "contributeLink": "Suggest a plugin",
+            "contributeDoc": "How to contribute",
+            "sourceRemote": "Catalog: current version from GitHub",
+            "sourceBundled": "Catalog: bundled version",
+            "refresh": "Refresh",
+            "categories": {
+                "payment": "Payment",
+                "shipping": "Shipping & delivery",
+                "search": "Search",
+                "marketing": "Marketing & tracking",
+                "storefront": "Storefront & theme",
+                "performance": "Performance",
+                "administration": "Administration",
+                "language": "Language",
+                "developer": "Development",
+                "other": "Other"
+            }
+        },
+        "warnings": {
+            "adminNotBuilt": "The package contains no built administration – the plugin settings pages may be missing. Solution: use a release with a ready-made ZIP or build the administration (see README).",
+            "storefrontNotBuilt": "The package contains no built storefront JavaScript – shop features may be missing. Solution: use a release with a ready-made ZIP or build the storefront.",
+            "missingDependencies": "Requires additional Composer packages: {packages}. If installation fails, run \"composer require {packages}\" in the shop directory."
         }
     }
 }

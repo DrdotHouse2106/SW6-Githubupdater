@@ -11,6 +11,15 @@ Component.register('dh-github-install-modal', {
 
     emits: ['modal-close'],
 
+    props: {
+        // z. B. aus dem Plugin-Katalog: Repository vorbelegen und Versionen direkt laden
+        initialRepository: {
+            type: String,
+            required: false,
+            default: '',
+        },
+    },
+
     mixins: [Mixin.getByName('notification')],
 
     data() {
@@ -41,6 +50,13 @@ Component.register('dh-github-install-modal', {
         canInstall() {
             return this.selectedVersion !== null && !this.isInstalling && !this.isLoadingVersions;
         },
+    },
+
+    created() {
+        if (this.initialRepository) {
+            this.repository = this.initialRepository;
+            this.loadVersions();
+        }
     },
 
     methods: {
@@ -87,6 +103,7 @@ Component.register('dh-github-install-modal', {
                 this.createNotificationSuccess({
                     message: this.$t('dh-github-updater.install.success', { name: result.pluginName }),
                 });
+                DhGithubUpdaterApiService.rememberWarnings(result.pluginName, result.warnings);
 
                 await this.cacheApiService.clear();
                 window.location.reload();

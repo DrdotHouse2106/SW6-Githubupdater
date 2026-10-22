@@ -22,6 +22,15 @@ wurde aber von Grund auf neu und mit Fokus auf Sicherheit geschrieben.
   Commits werden als Update erkannt (muss in der Konfiguration aktiviert werden).
 - **Rollback**: Schlägt ein Update beim Einlesen fehl, wird der vorherige Stand
   automatisch wiederhergestellt.
+- **Plugin-Katalog** (neu in 1.2.0): Button „Plugin-Katalog“ mit geprüften Plugins
+  (PayPal, Sprachpaket, FriendsOfShopware, Zahlungsanbieter, Nova-Plugins …) – Suche,
+  Kategorien, Installieren oder Verknüpfen mit einem Klick. Eigene Plugins können
+  [beigetragen](CONTRIBUTING.md) werden.
+- **Fertige Release-Pakete** (neu in 1.2.0): Hängt am GitHub-Release ein Plugin-ZIP, wird
+  dieses statt des Quellcodes installiert – mit gebauter Administration und ggf. `vendor/`,
+  genau wie beim manuellen ZIP-Upload.
+- **Automatische Update-Prüfung** (neu in 1.2.0): alle 12 Stunden, neue Versionen erscheinen
+  direkt auf der Plugin-Karte und einmalig als Benachrichtigung (Glocke).
 
 ## Sicherheitskonzept
 
@@ -159,6 +168,49 @@ beschrieben fortfahren.
    „GitHub-Verknüpfung bearbeiten …“ bzw. „GitHub-Verknüpfung entfernen“. Das Entfernen
    löscht nur die Verknüpfung, nicht das Plugin.
 
+### Plugin-Katalog
+
+*Erweiterungen → Meine Erweiterungen → „Plugin-Katalog“* zeigt eine kuratierte Liste von
+Shopware-Plugins auf GitHub mit Suche und Kategorien. Je Plugin:
+
+- **Installieren …** öffnet „Aus GitHub installieren“ mit vorausgefülltem Repository.
+- **Mit GitHub verknüpfen** erscheint, wenn das Plugin schon installiert ist (z. B. aus dem
+  Store) – danach kommen Updates aus GitHub.
+- **✓ Installiert und verknüpft** – nichts zu tun.
+
+Der Katalog wird standardmäßig alle 6 Stunden aktuell von GitHub geladen
+(`src/Resources/catalog/plugins.json` in diesem Repository); ohne Verbindung wird die
+mitgelieferte Fassung genutzt. Abschaltbar in der Konfiguration („Plugin-Katalog“).
+Plugins, die nicht in „Erlaubte Repositories“ stehen, werden angezeigt, aber nicht angeboten.
+
+**Eigene Plugins beitragen:** Pull Request an `src/Resources/catalog/plugins.json` oder
+Vorschlag über das Issue-Formular „Plugin vorschlagen“ (Link unten im Katalog) – Details in
+der [CONTRIBUTING.md](CONTRIBUTING.md).
+
+### Automatische Update-Prüfung
+
+- Eine geplante Aufgabe (`dh_github_updater.check_updates`) prüft alle 12 Stunden alle
+  verknüpften Plugins.
+- Verfügbare Updates stehen danach direkt auf der Plugin-Karte („Update verfügbar“ +
+  „Aktualisieren“), ohne dass man „Auf GitHub-Updates prüfen“ klicken muss.
+- Jede neue Version wird einmal als Benachrichtigung (Glocke oben rechts) gemeldet.
+- Laufen in deinem Shop keine geplanten Aufgaben (kein Cron und kein Admin-Worker), wird
+  beim Öffnen von „Meine Erweiterungen“ geprüft, sobald das letzte Ergebnis älter als
+  12 Stunden ist.
+- Abschaltbar unter Konfiguration → „Update-Prüfung“. Installiert wird nie automatisch.
+
+### Release-Paket oder Quellcode?
+
+Beim Installieren und Aktualisieren schaut der Updater zuerst, ob am GitHub-Release des
+gewählten Tags ein ZIP hängt (`<PluginName>.zip`, `<PluginName>-<Version>.zip` oder das
+einzige ZIP). Ist es ein gültiges Plugin-Paket für genau dieses Plugin, wird es verwendet –
+so kommen bei PayPal, Sprachpaket, FroshTools, Adyen usw. die gebaute Administration und
+Abhängigkeiten mit. Sonst wird wie bisher der Quellcode des Tags installiert. Im
+Installationsdialog steht, welche Variante verwendet wird.
+
+Nach der Installation weist der Updater auf typische Lücken hin (keine gebaute
+Administration, kein gebautes Storefront-JavaScript, fehlende Composer-Pakete).
+
 ### Verbindung testen
 
 Im Verknüpfen-Dialog (vor dem Speichern) und im „…“-Menü verknüpfter Plugins gibt es
@@ -180,9 +232,9 @@ Der Test verbraucht einige GitHub-API-Anfragen (ohne Token sind 60 pro Stunde er
 
 - Unterstützt werden Repositories, in deren Hauptverzeichnis die `composer.json` des
   Plugins liegt (`type: shopware-platform-plugin`).
-- Plugins, die zusätzliche Composer-Abhängigkeiten in `vendor/` mitbringen müssen oder
-  gebaute Assets nur in Release-Archiven ausliefern, funktionieren aus dem Quellcode-Archiv
-  ggf. nicht vollständig.
+- Plugins ohne Release-Paket, die zusätzliche Composer-Abhängigkeiten brauchen oder keine
+  gebauten Assets im Repository haben, funktionieren aus dem Quellcode ggf. nicht vollständig
+  (der Updater weist nach der Installation darauf hin).
 - Archive mit symbolischen Links werden aus Sicherheitsgründen abgelehnt.
 - Per Composer (`vendor/`) installierte Plugins werden nicht angefasst.
 
@@ -194,6 +246,8 @@ Alle unter `/api/_action/dh-github-updater/` (Admin-API, OAuth):
 |---|---|---|
 | GET | `versions?repository=<url>` | `system.plugin_maintain` |
 | GET | `sources` | `system.plugin_maintain` |
+| GET | `catalog?refresh=1` | `system.plugin_maintain` |
+| GET | `update-status?refresh=1` | `system.plugin_maintain` |
 | GET | `check/{pluginName}` | `system.plugin_maintain` |
 | GET | `test-connection?repository=<url>&pluginName=<name>` (nur lesend) | `system.plugin_maintain` |
 | POST | `install` (`repository`, `ref`, `type`) | `system.plugin_maintain`, `system.plugin_upload` |
@@ -282,9 +336,27 @@ Hier sammeln wir Hürden, die bei Installation und Betrieb tatsächlich aufgetre
 
 ### Ein installiertes Plugin hat keinen Admin-Bereich
 
-**Ursache:** Dessen Repository enthält nur Admin-Quelltexte, keine gebauten Dateien
+**Ursache:** Es wurde aus dem Quellcode installiert (kein Release-Paket am GitHub-Release), und das Repository enthält nur Admin-Quelltexte, keine gebauten Dateien. Der Updater zeigt dazu nach der Installation einen Hinweis.
 
-**Lösung:** Im jeweiligen Plugin `src/Resources/public/administration` mitliefern oder einmal `bin/build-administration.sh` ausführen (benötigt Node.js)
+**Lösung:** Prüfen, ob der Hersteller ein Release mit ZIP-Anhang hat – dann über „Aktualisieren“ erneut einspielen (ab 1.2.0 wird das ZIP bevorzugt). Sonst im Plugin `src/Resources/public/administration` mitliefern oder einmal `bin/build-administration.sh` ausführen (benötigt Node.js)
+
+### Keine Glocken-Benachrichtigung bei neuen Versionen
+
+**Ursache:** In der Shop-Umgebung laufen keine geplanten Aufgaben (kein Cron für `bin/console scheduled-task:run` und kein Admin-Worker), oder die Aufgabe ist noch nicht registriert
+
+**Lösung:** Einmal `bin/console scheduled-task:register` ausführen und einen Cron für `scheduled-task:run` bzw. `messenger:consume` einrichten. Ohne Cron werden Updates trotzdem auf den Plugin-Karten angezeigt – geprüft wird dann beim Öffnen von „Meine Erweiterungen“
+
+### Der Plugin-Katalog zeigt „mitgelieferte Fassung“
+
+**Ursache:** GitHub war nicht erreichbar, das API-Limit war erreicht oder „Aktuellen Katalog von GitHub laden“ ist deaktiviert
+
+**Lösung:** Im Katalog auf „Aktualisieren“ klicken. Bei häufigem Ratenlimit ein GitHub-Token hinterlegen (5000 statt 60 Anfragen pro Stunde)
+
+### Plugin aus dem Katalog lässt sich nicht installieren: „keine kompatiblen Versionen“
+
+**Ursache:** Der Hersteller hat noch keine Version für deine Shopware-Version veröffentlicht (z. B. nur `~6.6` in der composer.json)
+
+**Lösung:** Abwarten oder beim Hersteller nachfragen; der Katalog listet Plugins unabhängig von deiner Shopware-Version
 
 ### Plugin mit Composer-Abhängigkeiten (z. B. Nova Suche)
 

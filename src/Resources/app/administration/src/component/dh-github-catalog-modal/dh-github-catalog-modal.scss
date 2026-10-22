@@ -1,0 +1,131 @@
+.dh-github-catalog-modal {
+    .dh-github-catalog-modal__intro {
+        margin-bottom: 16px;
+        color: var(--color-text-secondary-default, #52667a);
+    }
+
+    .dh-github-catalog-modal__toolbar .mt-field,
+    .dh-github-catalog-modal__toolbar .sw-field {
+        margin-bottom: 12px;
+    }
+
+    .dh-github-catalog-modal__categories {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 16px;
+    }
+
+    .dh-github-catalog-modal__chip {
+        padding: 4px 10px;
+        border: 1px solid var(--color-border-primary-default, #d1d9e0);
+        border-radius: 999px;
+        background: var(--color-elevation-surface-raised, #fff);
+        font-size: 12px;
+        cursor: pointer;
+
+        &.is--active {
+            border-color: var(--color-interaction-primary-default, #0870ff);
+            background: var(--color-interaction-primary-default, #0870ff);
+            color: #fff;
+        }
+    }
+
+    .dh-github-catalog-modal__list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 12px;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .dh-github-catalog-modal__item {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: 14px 16px;
+        border: 1px solid var(--color-border-primary-default, #d1d9e0);
+        border-radius: 8px;
+        background: var(--color-elevation-surface-raised, #fff);
+    }
+
+    .dh-github-catalog-modal__head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .dh-github-catalog-modal__name {
+        font-size: 15px;
+    }
+
+    .dh-github-catalog-modal__badge {
+        flex: 0 0 auto;
+        padding: 1px 8px;
+        border-radius: 999px;
+        background: var(--color-gray-100, #f0f2f5);
+        font-size: 11px;
+        color: var(--color-text-secondary-default, #52667a);
+    }
+
+    .dh-github-catalog-modal__meta {
+        font-size: 12px;
+        color: var(--color-text-secondary-default, #52667a);
+        word-break: break-word;
+    }
+
+    .dh-github-catalog-modal__description {
+        flex: 1;
+        margin: 0;
+        font-size: 13px;
+        line-height: 1.45;
+    }
+
+    .dh-github-catalog-modal__actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 4px;
+    }
+
+    .dh-github-catalog-modal__state {
+        font-size: 12px;
+        color: var(--color-text-secondary-default, #52667a);
+
+        &.is--positive {
+            font-weight: 600;
+            color: var(--color-emerald-700, #0b7a43);
+        }
+
+        &.is--muted {
+            font-style: italic;
+        }
+    }
+
+    .dh-github-catalog-modal__empty {
+        padding: 24px 0;
+        text-align: center;
+        color: var(--color-text-secondary-default, #52667a);
+    }
+
+    .dh-github-catalog-modal__contribute {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 20px;
+        padding: 12px 14px;
+        border-radius: 8px;
+        background: var(--color-gray-50, #f9fafb);
+        font-size: 13px;
+    }
+
+    .dh-github-catalog-modal__source {
+        margin-right: auto;
+        font-size: 12px;
+        color: var(--color-text-secondary-default, #52667a);
+    }
+}

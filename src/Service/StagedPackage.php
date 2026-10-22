@@ -9,6 +9,8 @@ final class StagedPackage
     public function __construct(
         public readonly string $path,
         public readonly PluginManifest $manifest,
+        /** @var list<array{code: string, params: array<string, string>}> */
+        public readonly array $warnings = [],
     ) {
     }
 }
