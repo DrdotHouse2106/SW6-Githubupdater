@@ -93,25 +93,43 @@ Component.register('dh-github-install-modal', {
             this.isInstalling = true;
             const version = this.selectedVersion;
 
+            let result;
             try {
-                const result = await this.dhGithubUpdaterApiService.install(this.loadedRepository, version.ref, version.type);
-
-                if (this.activateAfterInstall) {
-                    await this.shopwareExtensionService.installAndActivateExtension(result.pluginName, 'plugin');
-                }
-
-                this.createNotificationSuccess({
-                    message: this.$t('dh-github-updater.install.success', { name: result.pluginName }),
-                });
-                DhGithubUpdaterApiService.rememberWarnings(result.pluginName, result.warnings);
-
-                await this.cacheApiService.clear();
-                window.location.reload();
+                result = await this.dhGithubUpdaterApiService.install(this.loadedRepository, version.ref, version.type);
             } catch (error) {
                 this.createNotificationError({
                     message: DhGithubUpdaterApiService.getErrorMessage(error, this.$tc('dh-github-updater.general.unknownError')),
                 });
                 this.isInstalling = false;
+
+                return;
+            }
+
+            DhGithubUpdaterApiService.rememberWarnings(result.pluginName, result.warnings);
+
+            if (this.activateAfterInstall) {
+                try {
+                    await this.shopwareExtensionService.installAndActivateExtension(result.pluginName, 'plugin');
+                } catch (error) {
+                    // Dateien liegen bereits im Shop – nur Installieren/Aktivieren durch Shopware ist gescheitert
+                    // (häufig Zeitüberschreitung beim Kompilieren der Themes).
+                    DhGithubUpdaterApiService.rememberWarnings(result.pluginName, [{
+                        code: 'activationFailed',
+                        params: {
+                            error: DhGithubUpdaterApiService.getErrorMessage(error, this.$tc('dh-github-updater.general.unknownError')),
+                        },
+                    }]);
+                }
+            }
+
+            this.createNotificationSuccess({
+                message: this.$t('dh-github-updater.install.success', { name: result.pluginName }),
+            });
+
+            try {
+                await this.cacheApiService.clear();
+            } finally {
+                window.location.reload();
             }
         },
     },

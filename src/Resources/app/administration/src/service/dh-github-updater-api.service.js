@@ -162,9 +162,12 @@ class DhGithubUpdaterApiService extends ApiService {
     }
 
     static getErrorMessage(error, fallback) {
+        const status = error?.response?.status;
+
         return error?.response?.data?.message
             || error?.response?.data?.errors?.[0]?.detail
-            || fallback;
+            || (status ? `${fallback} (HTTP ${status})` : null)
+            || (error?.code === 'ECONNABORTED' ? `${fallback} (Timeout)` : fallback);
     }
 }
 

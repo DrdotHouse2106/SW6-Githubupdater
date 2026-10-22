@@ -92,7 +92,8 @@
         "warnings": {
             "adminNotBuilt": "Das Paket enthält keine gebaute Administration – Einstellungsseiten des Plugins fehlen eventuell. Lösung: ein Release mit fertigem ZIP verwenden oder die Administration bauen (siehe README).",
             "storefrontNotBuilt": "Das Paket enthält kein gebautes Storefront-JavaScript – Funktionen im Shop fehlen eventuell. Lösung: ein Release mit fertigem ZIP verwenden oder die Storefront bauen.",
-            "missingDependencies": "Benötigt zusätzliche Composer-Pakete: {packages}. Falls die Installation fehlschlägt, im Shop-Verzeichnis „composer require {packages}“ ausführen."
+            "missingDependencies": "Benötigt zusätzliche Composer-Pakete: {packages}. Falls die Installation fehlschlägt, im Shop-Verzeichnis „composer require {packages}“ ausführen.",
+            "activationFailed": "Die Plugin-Dateien wurden abgelegt, aber Shopware konnte das Plugin nicht installieren/aktivieren ({error}). Meist war nur das Kompilieren der Themes zu langsam: Plugin in der Liste über den Schalter aktivieren bzw. „…“ → „Installieren“, sonst per Konsole „plugin:install --activate“. Details im Shopware-Log."
         }
     }
 }

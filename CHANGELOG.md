@@ -1,3 +1,7 @@
+# 1.2.1
+- Scheitert nach dem Herunterladen nur das Installieren/Aktivieren durch Shopware (z. B. Zeitüberschreitung beim Kompilieren der Themes), erscheint ein genauer Hinweis statt „Unbekannter Fehler“; die Seite wird trotzdem neu geladen, damit das Plugin in der Liste steht
+- Fehlermeldungen ohne Text zeigen den HTTP-Status bzw. „Timeout“
+
 # 1.2.0
 - Neu: Plugin-Katalog („Plugin-Katalog“ in Meine Erweiterungen) mit Suche, Kategorien und Status je Plugin; Installieren bzw. Verknüpfen mit einem Klick. Katalog wird alle 6 Stunden von GitHub aktualisiert, Fallback auf mitgelieferte Fassung
 - Neu: Eigene Plugins beitragen per Pull Request oder Issue-Formular („Plugin vorschlagen“), CONTRIBUTING.md

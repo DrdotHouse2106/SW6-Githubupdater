@@ -92,7 +92,8 @@
         "warnings": {
             "adminNotBuilt": "The package contains no built administration – the plugin settings pages may be missing. Solution: use a release with a ready-made ZIP or build the administration (see README).",
             "storefrontNotBuilt": "The package contains no built storefront JavaScript – shop features may be missing. Solution: use a release with a ready-made ZIP or build the storefront.",
-            "missingDependencies": "Requires additional Composer packages: {packages}. If installation fails, run \"composer require {packages}\" in the shop directory."
+            "missingDependencies": "Requires additional Composer packages: {packages}. If installation fails, run \"composer require {packages}\" in the shop directory.",
+            "activationFailed": "The plugin files were placed, but Shopware could not install/activate the plugin ({error}). Usually compiling the themes just took too long: activate the plugin in the list via its toggle or \"…\" → \"Install\", otherwise use \"plugin:install --activate\" on the console. Details in the Shopware log."
         }
     }
 }
