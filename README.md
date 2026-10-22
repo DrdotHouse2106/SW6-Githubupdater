@@ -346,6 +346,12 @@ Hier sammeln wir Hürden, die bei Installation und Betrieb tatsächlich aufgetre
 
 **Lösung:** Einmal `bin/console scheduled-task:register` ausführen und einen Cron für `scheduled-task:run` bzw. `messenger:consume` einrichten. Ohne Cron werden Updates trotzdem auf den Plugin-Karten angezeigt – geprüft wird dann beim Öffnen von „Meine Erweiterungen“
 
+### Konsole meldet „Cannot find the "redis" extension nor the "relay" extension …“
+
+**Ursache:** Der Befehl `php` bzw. `bin/console` nutzt die Standard-PHP-Version des Servers. Der Shop läuft aber mit einer anderen PHP-Version (bei Plesk z. B. `/opt/plesk/php/8.3`), in der die Redis-Erweiterung aktiv ist. Häufig wird außerdem als `root` gearbeitet
+
+**Lösung:** Die PHP-Version der Domain verwenden und als Benutzer der Domain ausführen, z. B. `sudo -u $(stat -c %U .) /opt/plesk/php/8.3/bin/php bin/console scheduled-task:register`. Die Versionsnummer steht in Plesk unter „PHP-Einstellungen“ der Domain bzw. per `ls /opt/plesk/php/`. Befehle nicht als `root` ausführen, sonst gehören neu angelegte Cache-Dateien `root` und der Shop kann sie nicht mehr schreiben
+
 ### Der Plugin-Katalog zeigt „mitgelieferte Fassung“
 
 **Ursache:** GitHub war nicht erreichbar, das API-Limit war erreicht oder „Aktuellen Katalog von GitHub laden“ ist deaktiviert
