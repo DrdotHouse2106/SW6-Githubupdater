@@ -43,7 +43,8 @@ git clone https://github.com/DrdotHouse2106/SW6-Githubupdater.git DhGithubUpdate
 cd <shopware>
 bin/console plugin:refresh
 bin/console plugin:install --activate DhGithubUpdater
-bin/build-administration.sh
+# Admin UI is shipped pre-built (src/Resources/public/administration).
+# Alternatively upload the ZIP in Extensions → My extensions → Upload extension.
 bin/console cache:clear
 ```
 

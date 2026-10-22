@@ -1,0 +1,25 @@
+{
+  "base": "/bundles/dhgithubupdater/administration/",
+  "entryPoints": {
+    "dh-github-updater": {
+      "css": [
+        "/bundles/dhgithubupdater/administration/assets/dh-github-updater-q-yb1oHO.css"
+      ],
+      "dynamic": [],
+      "js": [
+        "/bundles/dhgithubupdater/administration/assets/dh-github-updater-Ctnxe4Ee.js"
+      ],
+      "legacy": false,
+      "preload": []
+    }
+  },
+  "legacy": false,
+  "metadatas": {},
+  "version": [
+    "7.1.0",
+    7,
+    1,
+    0
+  ],
+  "viteServer": null
+}

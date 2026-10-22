@@ -55,19 +55,34 @@ wie sie hier gelöst sind:
 
 ## Installation
 
+### Variante A: ZIP-Upload in der Administration (ohne Konsole)
+
+1. Das ZIP `DhGithubUpdater-<version>.zip` herunterladen (enthält den Ordner `DhGithubUpdater/`).
+2. *Erweiterungen → Meine Erweiterungen → Erweiterung hochladen* → ZIP auswählen.
+3. Beim Plugin „GitHub Plugin-Updater“ auf **Installieren** und danach **Aktivieren** klicken.
+4. Administration neu laden (F5). Oben erscheint der Button **„Aus GitHub installieren“**.
+
+ZIP selbst erstellen (aus diesem Repository):
+
+```bash
+git archive --format=zip --prefix=DhGithubUpdater/ -o DhGithubUpdater.zip HEAD
+```
+
+### Variante B: Konsole
+
 ```bash
 cd <shopware>/custom/plugins
 git clone https://github.com/DrdotHouse2106/SW6-Githubupdater.git DhGithubUpdater
 cd <shopware>
 bin/console plugin:refresh
 bin/console plugin:install --activate DhGithubUpdater
-bin/build-administration.sh   # Administration neu bauen (enthält die Oberfläche des Plugins)
 bin/console cache:clear
 ```
 
-Das Repository enthält nur die Quelltexte der Administration. Nach Installation oder
-Update dieses Plugins muss die Administration daher einmal neu gebaut werden
-(`bin/build-administration.sh` bzw. `composer run build:js:admin`).
+Die Oberfläche der Administration ist **fertig gebaut** im Repository enthalten
+(`src/Resources/public/administration`, gebaut mit Shopware 6.7.15). Ein Neubau mit
+`bin/build-administration.sh` ist nur nötig, wenn du die Quelltexte unter
+`src/Resources/app/administration` änderst.
 
 ## Konfiguration
 
