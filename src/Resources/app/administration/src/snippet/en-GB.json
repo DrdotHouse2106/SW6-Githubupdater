@@ -28,10 +28,11 @@
             "test": "Test connection",
             "update": "Update",
             "updateAvailable": "Update available:",
-            "upToDate": "{name} is up to date.",
+            "upToDate": "{name} is up to date (latest version on GitHub: {version}).",
             "updateSuccess": "{name} has been updated from GitHub.",
             "linkSuccess": "{name} is now linked to {repository}.",
-            "unlinkSuccess": "The GitHub link of {name} has been removed. The plugin itself is unchanged."
+            "unlinkSuccess": "The GitHub link of {name} has been removed. The plugin itself is unchanged.",
+            "noReleases": "No matching version of {name} was found on GitHub. Create a release (e.g. tag v1.0.0) or enable branch installs. Details: \"…\" → \"Test connection\"."
         },
         "linkModal": {
             "title": "Link {name} to GitHub",

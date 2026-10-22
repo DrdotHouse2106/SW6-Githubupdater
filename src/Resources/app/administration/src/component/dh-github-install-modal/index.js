@@ -85,7 +85,7 @@ Component.register('dh-github-install-modal', {
                 }
 
                 this.createNotificationSuccess({
-                    message: this.$tc('dh-github-updater.install.success', 0, { name: result.pluginName }),
+                    message: this.$t('dh-github-updater.install.success', { name: result.pluginName }),
                 });
 
                 await this.cacheApiService.clear();

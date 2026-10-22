@@ -202,9 +202,17 @@ class GithubPluginManager
 
         $installedVersion = $plugin->getVersion();
         $updates = [];
+        $latestVersion = null;
         foreach ($this->versionResolver->listCompatible($link['repository']) as $candidate) {
             if ($candidate->manifest->pluginName !== $plugin->getName()) {
                 continue;
+            }
+
+            if ($candidate->ref->type !== GitRef::TYPE_BRANCH) {
+                $version = $candidate->manifest->version ?? $candidate->ref->name;
+                if ($latestVersion === null || (CompatibilityChecker::compare($version, $latestVersion) ?? 0) > 0) {
+                    $latestVersion = $version;
+                }
             }
 
             if ($candidate->ref->type === GitRef::TYPE_BRANCH) {
@@ -231,6 +239,8 @@ class GithubPluginManager
             'installedVersion' => $installedVersion,
             'installedRef' => $link['installedRef'],
             'installedCommit' => $link['installedCommit'],
+            // null = im Repository keine kompatible Release-Version gefunden
+            'latestVersion' => $latestVersion,
             'updates' => $updates,
         ];
     }

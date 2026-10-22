@@ -164,7 +164,7 @@ Shopware.Component.override('sw-extension-card-base', {
                 this.dhGithub.updates = null;
                 this.dhGithub.showModal = false;
                 this.createNotificationSuccess({
-                    message: this.$tc('dh-github-updater.card.linkSuccess', 0, { name: this.extension.label, repository: result.repository }),
+                    message: this.$t('dh-github-updater.card.linkSuccess', { name: this.extension.label || this.extension.name, repository: result.repository }),
                 });
                 await this.dhGithubLoadSource(true);
             } catch (error) {
@@ -183,7 +183,7 @@ Shopware.Component.override('sw-extension-card-base', {
                 this.dhGithub.installedRef = null;
                 this.dhGithub.updates = null;
                 this.createNotificationInfo({
-                    message: this.$tc('dh-github-updater.card.unlinkSuccess', 0, { name: this.extension.label }),
+                    message: this.$t('dh-github-updater.card.unlinkSuccess', { name: this.extension.label || this.extension.name }),
                 });
                 await this.dhGithubLoadSource(true);
             } catch (error) {
@@ -201,9 +201,17 @@ Shopware.Component.override('sw-extension-card-base', {
                 this.dhGithub.updates = result.updates;
                 this.dhGithub.selectedKey = this.dhGithubUpdateOptions[0]?.value ?? null;
 
-                if (result.updates.length === 0) {
+                if (result.updates.length === 0 && !result.latestVersion) {
+                    // Keine (kompatible) Version im Repository – meist fehlt ein Release/Tag
+                    this.createNotificationWarning({
+                        message: this.$t('dh-github-updater.card.noReleases', { name: this.extension.label || this.extension.name }),
+                    });
+                } else if (result.updates.length === 0) {
                     this.createNotificationInfo({
-                        message: this.$tc('dh-github-updater.card.upToDate', 0, { name: this.extension.label }),
+                        message: this.$t('dh-github-updater.card.upToDate', {
+                            name: this.extension.label || this.extension.name,
+                            version: result.latestVersion,
+                        }),
                     });
                 }
             } catch (error) {
@@ -231,7 +239,7 @@ Shopware.Component.override('sw-extension-card-base', {
                 }
 
                 this.createNotificationSuccess({
-                    message: this.$tc('dh-github-updater.card.updateSuccess', 0, { name: this.extension.label }),
+                    message: this.$t('dh-github-updater.card.updateSuccess', { name: this.extension.label || this.extension.name }),
                 });
 
                 this.clearCacheAndReloadPage();

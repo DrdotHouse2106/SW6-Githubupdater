@@ -1,3 +1,7 @@
+# 1.1.1
+- Meldungen zeigen wieder den Plugin-Namen an (Platzhalter gingen verloren)
+- „Updates prüfen“ unterscheidet jetzt zwischen „auf dem neuesten Stand“ (mit neuester Version) und „keine passende Version/kein Release gefunden“
+
 # 1.1.0
 
 - Plugin-Karten überarbeitet: Der GitHub-Bereich erscheint nur noch bei verknüpften Plugins

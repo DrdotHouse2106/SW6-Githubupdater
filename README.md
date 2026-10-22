@@ -244,6 +244,18 @@ Hier sammeln wir Hürden, die bei Installation und Betrieb tatsächlich aufgetre
 
 **Lösung:** `composer.json` mit `"type": "shopware-platform-plugin"` und `extra.shopware-plugin-class` ins Repo-Hauptverzeichnis
 
+### „Updates prüfen“ meldet „auf dem neuesten Stand“, obwohl es eine neuere Version gibt
+
+**Ursache:** Im Repository gibt es für die neue Version keinen **Tag/Release** – der Updater sieht nur Tags. Ab Version 1.1.1 lautet die Meldung in diesem Fall „keine passende Version gefunden“.
+
+**Lösung:** Auf GitHub unter *Releases* prüfen, ob es den Tag (z. B. `v1.1.0`) gibt. Fehlt er, Release anlegen bzw. die Release-Action prüfen (siehe nächster Punkt).
+
+### Die automatische Release-Action läuft nicht („The job was not started because recent account payments have failed …“)
+
+**Ursache:** Bei **privaten** Repositories verbrauchen GitHub Actions kostenpflichtige Minuten. Ist im GitHub-Konto keine gültige Zahlungsart hinterlegt oder das Ausgabenlimit auf 0, startet kein einziger Job – auch keine Tests. Bei öffentlichen Repositories sind Actions kostenlos.
+
+**Lösung:** Unter *GitHub → Settings → Billing and plans* die Zahlung/das Ausgabenlimit für Actions prüfen – oder das Repository öffentlich machen. Danach unter *Actions → Release → Run workflow* den Lauf einmal manuell starten.
+
 ### Privates Repository: „nicht gefunden“
 
 **Ursache:** Ohne Token sieht GitHub private Repos nicht

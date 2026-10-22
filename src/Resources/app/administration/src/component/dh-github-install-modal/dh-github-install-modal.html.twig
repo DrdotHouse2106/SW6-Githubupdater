@@ -59,7 +59,7 @@
                 v-if="selectedVersion"
                 class="dh-github-install-modal__summary"
             >
-                {{ $tc('dh-github-updater.install.summary', 0, {
+                {{ $t('dh-github-updater.install.summary', {
                     plugin: selectedVersion.pluginName,
                     repository: loadedRepository,
                     commit: selectedVersion.commit.substring(0, 12)
