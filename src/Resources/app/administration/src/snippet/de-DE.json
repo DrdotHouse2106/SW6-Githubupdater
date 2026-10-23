@@ -18,7 +18,8 @@
             "submit": "Installieren",
             "success": "Plugin \"{name}\" wurde aus GitHub installiert.",
             "packageRelease": "Es wird das fertige Release-Paket „{asset}“ des Herstellers installiert.",
-            "packageSource": "Es wird der Quellcode dieser Version installiert (kein Release-Paket vorhanden)."
+            "packageSource": "Es wird der Quellcode dieser Version installiert (kein Release-Paket vorhanden).",
+            "waiting": "Shopware richtet das Plugin noch ein (die Themes werden kompiliert). Das kann bei mehreren Shops 1–2 Minuten dauern – bitte das Fenster offen lassen …"
         },
         "card": {
             "notLinked": "nicht verknüpft",
@@ -94,7 +95,8 @@
             "storefrontNotBuilt": "Das Paket enthält kein gebautes Storefront-JavaScript – Funktionen im Shop fehlen eventuell. Lösung: ein Release mit fertigem ZIP verwenden oder die Storefront bauen.",
             "missingDependencies": "Benötigt zusätzliche Composer-Pakete: {packages}. Shopware lädt sie beim Installieren automatisch, wenn das Plugin das vorsieht. Nur falls das Plugin danach Fehler meldet (z. B. „Class … not found“ im Log), im Shop-Verzeichnis „composer require {packages}“ ausführen.",
             "activationFailed": "Die Plugin-Dateien wurden abgelegt, aber Shopware konnte das Plugin nicht installieren/aktivieren ({error}). Meist war nur das Kompilieren der Themes zu langsam: Plugin in der Liste über den Schalter aktivieren bzw. „…“ → „Installieren“, sonst per Konsole „plugin:install --activate“. Details im Shopware-Log.",
-            "activatedAfterTimeout": "{name} ist installiert und aktiv. Die Rückmeldung von Shopware hat nur länger gedauert (meist wegen des Kompilierens der Themes) – es ist nichts zu tun."
+            "activatedAfterTimeout": "{name} ist installiert und aktiv. Die Rückmeldung von Shopware hat nur länger gedauert (meist wegen des Kompilierens der Themes) – es ist nichts zu tun.",
+            "updateFailed": "Die neuen Dateien sind abgelegt, aber Shopware hat das Update noch nicht abgeschlossen ({error}). Auf der Plugin-Karte „Aktualisieren“ bzw. per Konsole „plugin:update <Name>“ ausführen. Details im Shopware-Log."
         }
     }
 }

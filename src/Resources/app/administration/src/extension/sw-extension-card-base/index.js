@@ -15,7 +15,7 @@ const STATUS_ICONS = {
 Shopware.Component.override('sw-extension-card-base', {
     template,
 
-    inject: ['acl', 'dhGithubUpdaterApiService'],
+    inject: ['acl', 'dhGithubUpdaterApiService', 'repositoryFactory'],
 
     mixins: [Shopware.Mixin.getByName('notification')],
 
@@ -269,14 +269,31 @@ Shopware.Component.override('sw-extension-card-base', {
 
                 // Der eigentliche Plugin-Update-Lebenszyklus (Migrationen etc.) läuft
                 // über den regulären Shopware-Endpunkt in einem neuen Request mit dem neuen Code.
+                const warnings = [];
                 if (result.installed) {
-                    await this.shopwareExtensionService.updateExtension(this.extension.name, 'plugin', false);
+                    try {
+                        await this.shopwareExtensionService.updateExtension(this.extension.name, 'plugin', false);
+                    } catch (error) {
+                        // Meist nur eine Zeitüberschreitung beim Kompilieren der Themes – warten, bis Shopware fertig ist
+                        const done = await DhGithubUpdaterApiService.waitForPlugin(
+                            this.repositoryFactory,
+                            this.extension.name,
+                            (plugin) => !plugin.upgradeVersion,
+                        );
+                        if (!done) {
+                            warnings.push({
+                                code: 'updateFailed',
+                                params: { error: DhGithubUpdaterApiService.getErrorMessage(error, this.$tc('dh-github-updater.general.unknownError')) },
+                            });
+                        }
+                    }
                 }
 
                 this.createNotificationSuccess({
                     message: this.$t('dh-github-updater.card.updateSuccess', { name: this.extension.label || this.extension.name }),
                 });
-                DhGithubUpdaterApiService.rememberWarnings(this.extension.label || this.extension.name, result.warnings);
+                warnings.unshift(...await this.dhGithubUpdaterApiService.confirmWarnings(result.warnings));
+                DhGithubUpdaterApiService.rememberWarnings(this.extension.label || this.extension.name, warnings);
 
                 this.clearCacheAndReloadPage();
             } catch (error) {

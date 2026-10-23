@@ -57,7 +57,10 @@
             <argument type="service" id="logger"/>
         </service>
 
-        <service id="DhGithubUpdater\Package\PackageInspector"/>
+        <service id="DhGithubUpdater\Package\PackageInspector">
+            <argument>null</argument>
+            <argument>%kernel.project_dir%</argument>
+        </service>
 
         <service id="DhGithubUpdater\Service\UpdateChecker">
             <argument type="service" id="DhGithubUpdater\Service\GithubPluginManager"/>
@@ -91,6 +94,7 @@
         <service id="DhGithubUpdater\Controller\GithubUpdaterController" public="true">
             <argument type="service" id="DhGithubUpdater\Service\GithubPluginManager"/>
             <argument type="service" id="DhGithubUpdater\Service\UpdateChecker"/>
+            <argument type="service" id="DhGithubUpdater\Package\PackageInspector"/>
             <argument type="service" id="DhGithubUpdater\Config\UpdaterConfig"/>
             <argument type="service" id="logger"/>
             <argument>%shopware.deployment.runtime_extension_management%</argument>

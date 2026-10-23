@@ -4,6 +4,7 @@ namespace DhGithubUpdater\Controller;
 
 use DhGithubUpdater\Config\UpdaterConfig;
 use DhGithubUpdater\Exception\GithubUpdaterException;
+use DhGithubUpdater\Package\PackageInspector;
 use DhGithubUpdater\Service\GithubPluginManager;
 use DhGithubUpdater\Service\UpdateChecker;
 use Psr\Log\LoggerInterface;
@@ -28,6 +29,7 @@ class GithubUpdaterController
     public function __construct(
         private readonly GithubPluginManager $manager,
         private readonly UpdateChecker $updateChecker,
+        private readonly PackageInspector $packageInspector,
         private readonly UpdaterConfig $config,
         private readonly LoggerInterface $logger,
         private readonly bool $runtimeExtensionManagement,
@@ -76,6 +78,22 @@ class GithubUpdaterController
             $request->query->getBoolean('refresh'),
             $context,
         ));
+    }
+
+    /**
+     * Prüft nach einer Installation, ob benötigte Composer-Pakete inzwischen vorhanden sind.
+     */
+    #[Route(path: '/api/_action/dh-github-updater/missing-packages', name: 'api.action.dh_github_updater.missing_packages', methods: ['GET'])]
+    public function missingPackages(Request $request, Context $context): JsonResponse
+    {
+        return $this->handle($context, false, function () use ($request): array {
+            $packages = array_values(array_filter(
+                array_map('trim', explode(',', $request->query->getString('packages'))),
+                static fn (string $package): bool => preg_match('#^[a-z0-9]([_.-]?[a-z0-9]+)*/[a-z0-9](([_.]|-{1,2})?[a-z0-9]+)*$#', $package) === 1
+            ));
+
+            return ['missing' => $this->packageInspector->missingPackages(\array_slice($packages, 0, 50))];
+        });
     }
 
     #[Route(path: '/api/_action/dh-github-updater/sources', name: 'api.action.dh_github_updater.sources', methods: ['GET'])]

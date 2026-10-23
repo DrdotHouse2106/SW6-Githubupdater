@@ -128,6 +128,66 @@ class DhGithubUpdaterApiService extends ApiService {
             .then(ApiService.handleResponse);
     }
 
+    getMissingPackages(packages) {
+        return this.httpClient
+            .get(`${this.getApiBasePath()}/missing-packages`, {
+                params: { packages: packages.join(',') },
+                headers: this.getBasicHeaders(),
+            })
+            .then(ApiService.handleResponse);
+    }
+
+    /**
+     * Hinweise nach einer Installation/Aktualisierung bereinigen: Composer-Pakete erst nachfragen –
+     * Shopware lädt sie beim Installieren meist selbst nach. Nur was danach wirklich fehlt, bleibt.
+     */
+    async confirmWarnings(warnings) {
+        const confirmed = [];
+        for (const warning of Array.isArray(warnings) ? warnings : []) {
+            if (warning.code !== 'missingDependencies') {
+                confirmed.push(warning);
+                continue;
+            }
+
+            try {
+                const packages = String(warning.params?.packages || '').split(/\s+/).filter(Boolean);
+                const { missing } = await this.getMissingPackages(packages);
+                if (missing.length > 0) {
+                    confirmed.push({ code: warning.code, params: { packages: missing.join(' ') } });
+                }
+            } catch {
+                confirmed.push(warning);
+            }
+        }
+
+        return confirmed;
+    }
+
+    /**
+     * Wartet, bis Shopware im Hintergrund fertig ist (z. B. nach einer Zeitüberschreitung beim
+     * Kompilieren der Themes). Liefert true, sobald die Bedingung erfüllt ist.
+     */
+    static async waitForPlugin(repositoryFactory, pluginName, condition, timeoutMs = 90000, intervalMs = 3000) {
+        const repository = repositoryFactory.create('plugin');
+        const criteria = new Shopware.Data.Criteria(1, 1);
+        criteria.addFilter(Shopware.Data.Criteria.equals('name', pluginName));
+        const until = Date.now() + timeoutMs;
+
+        while (Date.now() < until) {
+            try {
+                const plugin = (await repository.search(criteria)).first();
+                if (plugin && condition(plugin)) {
+                    return true;
+                }
+            } catch {
+                // Server noch beschäftigt – weiter warten
+            }
+            await new Promise((resolve) => { window.setTimeout(resolve, intervalMs); });
+        }
+
+        return false;
+    }
+
     unlink(pluginName) {
         return this.link(pluginName, '');
     }

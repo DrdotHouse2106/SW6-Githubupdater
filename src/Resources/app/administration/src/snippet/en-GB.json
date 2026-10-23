@@ -18,7 +18,8 @@
             "submit": "Install",
             "success": "Plugin \"{name}\" has been installed from GitHub.",
             "packageRelease": "The ready-made release package \"{asset}\" provided by the vendor will be installed.",
-            "packageSource": "The source code of this version will be installed (no release package available)."
+            "packageSource": "The source code of this version will be installed (no release package available).",
+            "waiting": "Shopware is still setting up the plugin (themes are being compiled). With several shops this can take 1–2 minutes – please keep this window open …"
         },
         "card": {
             "notLinked": "not linked",
@@ -94,7 +95,8 @@
             "storefrontNotBuilt": "The package contains no built storefront JavaScript – shop features may be missing. Solution: use a release with a ready-made ZIP or build the storefront.",
             "missingDependencies": "Requires additional Composer packages: {packages}. Shopware installs them automatically if the plugin supports it. Only if the plugin reports errors afterwards (e.g. \"Class … not found\" in the log), run \"composer require {packages}\" in the shop directory.",
             "activationFailed": "The plugin files were placed, but Shopware could not install/activate the plugin ({error}). Usually compiling the themes just took too long: activate the plugin in the list via its toggle or \"…\" → \"Install\", otherwise use \"plugin:install --activate\" on the console. Details in the Shopware log.",
-            "activatedAfterTimeout": "{name} is installed and active. Shopware just took longer to respond (usually because of theme compilation) – nothing to do."
+            "activatedAfterTimeout": "{name} is installed and active. Shopware just took longer to respond (usually because of theme compilation) – nothing to do.",
+            "updateFailed": "The new files are in place, but Shopware has not finished the update yet ({error}). Run \"Update\" on the plugin card or \"plugin:update <name>\" on the console. Details in the Shopware log."
         }
     }
 }

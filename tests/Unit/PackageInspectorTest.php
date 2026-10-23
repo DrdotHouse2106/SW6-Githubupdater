@@ -55,4 +55,14 @@ class PackageInspectorTest extends TestCase
             'require' => ['php' => '>=8.2', 'ext-curl' => '*', 'shopware/core' => '~6.7.0', 'acme/sdk' => '^1.0', 'symfony/var-dumper' => '*'],
         ]);
     }
+
+    public function testReadsFreshlyInstalledPackagesFromInstalledJson(): void
+    {
+        mkdir($this->dir . '/vendor/composer', 0777, true);
+        file_put_contents($this->dir . '/vendor/composer/installed.json', (string) json_encode(['packages' => [['name' => 'Acme/SDK'], ['name' => 'other/lib']]]));
+
+        $inspector = new PackageInspector(null, $this->dir);
+
+        static::assertSame(['missing/pkg'], $inspector->missingPackages(['acme/sdk', 'missing/pkg']));
+    }
 }

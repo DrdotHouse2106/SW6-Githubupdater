@@ -20,14 +20,42 @@ class PackageInspector
      */
     private readonly \Closure $isPackageInstalled;
 
+    /** @var array<string, true>|null */
+    private ?array $installedNames = null;
+
     /**
      * @param (callable(string): bool)|null $isPackageInstalled
      */
-    public function __construct(?callable $isPackageInstalled = null)
+    public function __construct(?callable $isPackageInstalled = null, private readonly ?string $projectDir = null)
     {
         $this->isPackageInstalled = $isPackageInstalled !== null
             ? $isPackageInstalled(...)
-            : static fn (string $package): bool => class_exists(InstalledVersions::class) && InstalledVersions::isInstalled($package);
+            : fn (string $package): bool => $this->isInstalled($package);
+    }
+
+    /**
+     * Liest vendor/composer/installed.json direkt – so sind auch Pakete sichtbar, die Shopware gerade
+     * erst per Composer nachinstalliert hat (der Opcache kann installed.php noch alt vorhalten).
+     */
+    private function isInstalled(string $package): bool
+    {
+        if ($this->installedNames === null) {
+            $this->installedNames = [];
+            $file = $this->projectDir !== null ? $this->projectDir . '/vendor/composer/installed.json' : null;
+            $data = $file !== null && is_file($file) ? json_decode((string) file_get_contents($file), true) : null;
+            $packages = \is_array($data) ? ($data['packages'] ?? $data) : [];
+            foreach (\is_array($packages) ? $packages : [] as $entry) {
+                if (\is_array($entry) && \is_string($entry['name'] ?? null)) {
+                    $this->installedNames[strtolower($entry['name'])] = true;
+                }
+            }
+        }
+
+        if (isset($this->installedNames[strtolower($package)])) {
+            return true;
+        }
+
+        return class_exists(InstalledVersions::class) && InstalledVersions::isInstalled($package);
     }
 
     /**
@@ -57,6 +85,21 @@ class PackageInspector
         }
 
         return $warnings;
+    }
+
+    /**
+     * Welche der Composer-Pakete fehlen im Shop (Stand dieses Requests)?
+     *
+     * @param list<string> $packages
+     *
+     * @return list<string>
+     */
+    public function missingPackages(array $packages): array
+    {
+        return array_values(array_filter(
+            $packages,
+            fn (string $package): bool => !($this->isPackageInstalled)($package),
+        ));
     }
 
     private function hasEntry(string $sourceDir): bool

@@ -356,7 +356,13 @@ Hier sammeln wir Hürden, die bei Installation und Betrieb tatsächlich aufgetre
 
 **Ursache:** Das Plugin braucht weitere Pakete (z. B. Nova Suche: `anthropic-ai/sdk` für die Claude-Stufe). Plugins wie die Nova Suche lassen sie von Shopware beim Installieren automatisch nachladen
 
-**Lösung:** Meist nichts zu tun. Nur wenn das Plugin danach Fehler meldet (z. B. „Class … not found“ im Log), im Shop-Verzeichnis `composer require <paket>` ausführen
+**Lösung:** Ab 1.2.4 prüft der Updater nach der Installation selbst, ob die Pakete angekommen sind, und meldet sich nur, wenn wirklich etwas fehlt. Dann (z. B. „Class … not found“ im Log), im Shop-Verzeichnis `composer require <paket>` ausführen
+
+### Installationsfenster zeigt „Shopware richtet das Plugin noch ein …“
+
+**Ursache:** Beim Aktivieren kompiliert Shopware die Themes aller Verkaufskanäle; das dauert länger als die Wartezeit des Browsers
+
+**Lösung:** Fenster offen lassen – der Updater fragt alle paar Sekunden nach und meldet Erfolg, sobald das Plugin aktiv ist (bis 90 Sekunden)
 
 ### Installation endet mit „Unbekannter Fehler“, das Plugin steht aber in der Liste
 

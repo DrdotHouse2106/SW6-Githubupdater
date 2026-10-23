@@ -7,7 +7,7 @@ const { Component, Mixin } = Shopware;
 Component.register('dh-github-install-modal', {
     template,
 
-    inject: ['dhGithubUpdaterApiService', 'shopwareExtensionService', 'cacheApiService'],
+    inject: ['dhGithubUpdaterApiService', 'shopwareExtensionService', 'cacheApiService', 'repositoryFactory'],
 
     emits: ['modal-close'],
 
@@ -31,6 +31,7 @@ Component.register('dh-github-install-modal', {
             loadedRepository: null,
             isLoadingVersions: false,
             isInstalling: false,
+            isWaiting: false,
             activateAfterInstall: true,
         };
     },
@@ -105,22 +106,34 @@ Component.register('dh-github-install-modal', {
                 return;
             }
 
-            DhGithubUpdaterApiService.rememberWarnings(result.pluginName, result.warnings);
-
+            const warnings = [];
             if (this.activateAfterInstall) {
                 try {
                     await this.shopwareExtensionService.installAndActivateExtension(result.pluginName, 'plugin');
                 } catch (error) {
-                    // Dateien liegen bereits im Shop – nur Installieren/Aktivieren durch Shopware ist gescheitert
-                    // (häufig Zeitüberschreitung beim Kompilieren der Themes).
-                    DhGithubUpdaterApiService.rememberWarnings(result.pluginName, [{
-                        code: 'activationFailed',
-                        params: {
-                            error: DhGithubUpdaterApiService.getErrorMessage(error, this.$tc('dh-github-updater.general.unknownError')),
-                        },
-                    }]);
+                    // Häufig nur eine Zeitüberschreitung (Themes werden kompiliert) – Shopware arbeitet weiter.
+                    // Daher nachfragen, bis das Plugin aktiv ist, statt sofort eine Warnung zu zeigen.
+                    this.isWaiting = true;
+                    const active = await DhGithubUpdaterApiService.waitForPlugin(
+                        this.repositoryFactory,
+                        result.pluginName,
+                        (plugin) => plugin.active === true,
+                    );
+                    this.isWaiting = false;
+
+                    if (!active) {
+                        warnings.push({
+                            code: 'activationFailed',
+                            params: {
+                                error: DhGithubUpdaterApiService.getErrorMessage(error, this.$tc('dh-github-updater.general.unknownError')),
+                            },
+                        });
+                    }
                 }
             }
+
+            warnings.unshift(...await this.dhGithubUpdaterApiService.confirmWarnings(result.warnings));
+            DhGithubUpdaterApiService.rememberWarnings(result.pluginName, warnings);
 
             this.createNotificationSuccess({
                 message: this.$t('dh-github-updater.install.success', { name: result.pluginName }),

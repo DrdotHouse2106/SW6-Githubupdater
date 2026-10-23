@@ -2,12 +2,19 @@
 <sw-modal
     class="dh-github-install-modal"
     :title="$tc('dh-github-updater.install.title')"
-    :is-loading="isInstalling"
+    :is-loading="isInstalling && !isWaiting"
     variant="large"
     @modal-close="$emit('modal-close')"
 >
     <mt-banner variant="attention">
         {{ $tc('dh-github-updater.install.warning') }}
+    </mt-banner>
+
+    <mt-banner
+        v-if="isWaiting"
+        variant="info"
+    >
+        {{ $tc('dh-github-updater.install.waiting') }}
     </mt-banner>
 
     <div class="dh-github-install-modal__repository">

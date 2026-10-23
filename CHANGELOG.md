@@ -1,3 +1,8 @@
+# 1.2.4
+- Zeitüberschreitung beim Installieren/Aktualisieren: Der Updater wartet jetzt (bis 90 Sekunden), bis Shopware im Hintergrund fertig ist, und zeigt nur dann eine Warnung, wenn das Plugin danach wirklich nicht aktiv bzw. aktualisiert ist
+- Composer-Pakete werden nach der Installation im Shop nachgeprüft (vendor/composer/installed.json) – der Hinweis erscheint nur noch, wenn ein Paket tatsächlich fehlt
+- Neuer Admin-API-Endpunkt missing-packages
+
 # 1.2.3
 - Hinweise nach dem Neuladen erscheinen in der Sprache der Administration (vorher teils Englisch)
 - Zeitüberschreitung beim Aktivieren: Ist das Plugin trotzdem aktiv, kommt eine Erfolgsmeldung statt einer Warnung
