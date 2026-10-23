@@ -352,6 +352,12 @@ Hier sammeln wir Hürden, die bei Installation und Betrieb tatsächlich aufgetre
 
 **Lösung:** Die PHP-Version der Domain verwenden und als Benutzer der Domain ausführen, z. B. `sudo -u $(stat -c %U .) /opt/plesk/php/8.3/bin/php bin/console scheduled-task:register`. Die Versionsnummer steht in Plesk unter „PHP-Einstellungen“ der Domain bzw. per `ls /opt/plesk/php/`. Befehle nicht als `root` ausführen, sonst gehören neu angelegte Cache-Dateien `root` und der Shop kann sie nicht mehr schreiben
 
+### Hinweis „Benötigt zusätzliche Composer-Pakete“ nach der Installation
+
+**Ursache:** Das Plugin braucht weitere Pakete (z. B. Nova Suche: `anthropic-ai/sdk` für die Claude-Stufe). Plugins wie die Nova Suche lassen sie von Shopware beim Installieren automatisch nachladen
+
+**Lösung:** Meist nichts zu tun. Nur wenn das Plugin danach Fehler meldet (z. B. „Class … not found“ im Log), im Shop-Verzeichnis `composer require <paket>` ausführen
+
 ### Installation endet mit „Unbekannter Fehler“, das Plugin steht aber in der Liste
 
 **Ursache:** Das Herunterladen hat geklappt, aber Shopware ist beim anschließenden Installieren/Aktivieren in eine Zeitüberschreitung gelaufen. Plugins mit Storefront-Dateien (z. B. Nova Tag Manager, Nova Theme) lösen beim Aktivieren das Kompilieren der Themes für **alle** Verkaufskanäle aus – bei mehreren Shops dauert das länger, als Webserver/PHP erlauben

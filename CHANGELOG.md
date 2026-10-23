@@ -1,3 +1,8 @@
+# 1.2.3
+- Hinweise nach dem Neuladen erscheinen in der Sprache der Administration (vorher teils Englisch)
+- Zeitüberschreitung beim Aktivieren: Ist das Plugin trotzdem aktiv, kommt eine Erfolgsmeldung statt einer Warnung
+- Hinweis zu Composer-Paketen ist jetzt eine Info und erklärt, dass Shopware sie meist selbst installiert
+
 # 1.2.2
 - Update-Prüfung braucht deutlich weniger GitHub-Anfragen: Es werden nur Versionen geprüft, die neuer als die installierte sind (vorher bis zu 15 je Plugin) – wichtig ohne Token (60 Anfragen pro Stunde)
 - Meldung beim GitHub-Limit nennt die Uhrzeit, ab der es wieder geht, und den Hinweis auf das Token
