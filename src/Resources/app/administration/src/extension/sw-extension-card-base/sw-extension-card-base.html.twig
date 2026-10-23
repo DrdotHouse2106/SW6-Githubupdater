@@ -51,6 +51,14 @@
             </mt-button>
         </div>
 
+        <p
+            v-if="dhGithub.progress"
+            class="dh-github-updater-card__progress"
+            role="status"
+        >
+            {{ dhGithub.progress }}
+        </p>
+
         <a
             v-else
             href="#"

@@ -6,6 +6,7 @@ use DhGithubUpdater\Config\UpdaterConfig;
 use DhGithubUpdater\Exception\GithubUpdaterException;
 use DhGithubUpdater\Package\PackageInspector;
 use DhGithubUpdater\Service\GithubPluginManager;
+use DhGithubUpdater\Service\StepwiseLifecycle;
 use DhGithubUpdater\Service\UpdateChecker;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -28,6 +29,7 @@ class GithubUpdaterController
 {
     public function __construct(
         private readonly GithubPluginManager $manager,
+        private readonly StepwiseLifecycle $stepwise,
         private readonly UpdateChecker $updateChecker,
         private readonly PackageInspector $packageInspector,
         private readonly UpdaterConfig $config,
@@ -136,6 +138,40 @@ class GithubUpdaterController
         return $this->handle($context, true, fn (): array => [
             'repository' => $this->manager->link($pluginName, $this->getString($request, 'repository'), $context),
         ]);
+    }
+
+    /**
+     * Schritt 1 nach dem Ablegen der Dateien: Shopware-Update (Migrationen usw.) ohne Theme-Kompilierung.
+     * Läuft in einer eigenen Anfrage, damit der neue Code geladen ist.
+     */
+    #[Route(path: '/api/_action/dh-github-updater/lifecycle/update/{pluginName}', name: 'api.action.dh_github_updater.lifecycle_update', requirements: ['pluginName' => '[A-Za-z][A-Za-z0-9_]{0,99}'], methods: ['POST'])]
+    public function lifecycleUpdate(string $pluginName, Context $context): JsonResponse
+    {
+        return $this->handle($context, true, fn (): array => $this->stepwise->update($pluginName, $context));
+    }
+
+    #[Route(path: '/api/_action/dh-github-updater/lifecycle/activate/{pluginName}', name: 'api.action.dh_github_updater.lifecycle_activate', requirements: ['pluginName' => '[A-Za-z][A-Za-z0-9_]{0,99}'], methods: ['POST'])]
+    public function lifecycleActivate(string $pluginName, Context $context): JsonResponse
+    {
+        return $this->handle($context, true, fn (): array => $this->stepwise->installAndActivate($pluginName, $context));
+    }
+
+    /**
+     * Schritt 2: Theme genau eines Verkaufskanals kompilieren.
+     */
+    #[Route(path: '/api/_action/dh-github-updater/compile-theme', name: 'api.action.dh_github_updater.compile_theme', methods: ['POST'])]
+    public function compileTheme(Request $request, Context $context): JsonResponse
+    {
+        return $this->handle($context, true, function () use ($request, $context): array {
+            $salesChannelId = strtolower($this->getString($request, 'salesChannelId'));
+            $themeId = strtolower($this->getString($request, 'themeId'));
+            if (preg_match('/^[0-9a-f]{32}$/', $salesChannelId) !== 1 || preg_match('/^[0-9a-f]{32}$/', $themeId) !== 1) {
+                throw new GithubUpdaterException('Ungültiger Verkaufskanal oder ungültiges Theme.', 400);
+            }
+            $this->stepwise->compileTheme($salesChannelId, $themeId, $context);
+
+            return [];
+        });
     }
 
     /**

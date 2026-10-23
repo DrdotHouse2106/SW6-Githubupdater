@@ -103,6 +103,52 @@ class DhGithubUpdaterApiService extends ApiService {
             .then(ApiService.handleResponse);
     }
 
+    /** Schritt 1: Shopware-Update ohne Theme-Kompilierung (eigene Anfrage, neuer Code geladen) */
+    lifecycleUpdate(pluginName) {
+        return this.httpClient
+            .post(`${this.getApiBasePath()}/lifecycle/update/${encodeURIComponent(pluginName)}`, {}, {
+                headers: this.getBasicHeaders(),
+                timeout: 300000,
+            })
+            .then(ApiService.handleResponse);
+    }
+
+    /** Installieren und aktivieren ohne Theme-Kompilierung */
+    lifecycleActivate(pluginName) {
+        return this.httpClient
+            .post(`${this.getApiBasePath()}/lifecycle/activate/${encodeURIComponent(pluginName)}`, {}, {
+                headers: this.getBasicHeaders(),
+                timeout: 300000,
+            })
+            .then(ApiService.handleResponse);
+    }
+
+    /**
+     * Schritt 2: Themes Shop für Shop kompilieren – je eine Anfrage, damit keine in ein Zeitlimit läuft.
+     * onProgress(done, total, job) wird vor jedem Shop aufgerufen. Liefert die Shops, bei denen es nicht geklappt hat.
+     */
+    async compileThemes(jobs, onProgress = () => {}) {
+        const failed = [];
+        for (let index = 0; index < jobs.length; index += 1) {
+            const job = jobs[index];
+            onProgress(index, jobs.length, job);
+            try {
+                await this.httpClient.post(`${this.getApiBasePath()}/compile-theme`, {
+                    salesChannelId: job.salesChannelId,
+                    themeId: job.themeId,
+                }, {
+                    headers: this.getBasicHeaders(),
+                    timeout: 300000,
+                });
+            } catch {
+                failed.push(job);
+            }
+        }
+        onProgress(jobs.length, jobs.length, null);
+
+        return failed;
+    }
+
     link(pluginName, repository) {
         this.resetCaches();
 

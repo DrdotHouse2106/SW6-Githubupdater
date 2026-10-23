@@ -32,6 +32,7 @@ Component.register('dh-github-install-modal', {
             isLoadingVersions: false,
             isInstalling: false,
             isWaiting: false,
+            progress: '',
             activateAfterInstall: true,
         };
     },
@@ -108,18 +109,19 @@ Component.register('dh-github-install-modal', {
 
             const warnings = [];
             if (this.activateAfterInstall) {
+                let themeJobs = [];
+                this.isWaiting = true;
                 try {
-                    await this.shopwareExtensionService.installAndActivateExtension(result.pluginName, 'plugin');
+                    // Installieren und aktivieren ohne Theme-Kompilierung, die Themes folgen Shop für Shop
+                    themeJobs = (await this.dhGithubUpdaterApiService.lifecycleActivate(result.pluginName)).themeJobs || [];
                 } catch (error) {
-                    // Häufig nur eine Zeitüberschreitung (Themes werden kompiliert) – Shopware arbeitet weiter.
-                    // Daher nachfragen, bis das Plugin aktiv ist, statt sofort eine Warnung zu zeigen.
-                    this.isWaiting = true;
+                    // Läuft Shopware noch? Nachfragen, bis das Plugin aktiv ist, statt sofort eine Warnung zu zeigen.
                     const active = await DhGithubUpdaterApiService.waitForPlugin(
                         this.repositoryFactory,
                         result.pluginName,
                         (plugin) => plugin.active === true,
+                        300000,
                     );
-                    this.isWaiting = false;
 
                     if (!active) {
                         warnings.push({
@@ -130,6 +132,17 @@ Component.register('dh-github-install-modal', {
                         });
                     }
                 }
+
+                if (themeJobs.length > 0) {
+                    const failed = await this.dhGithubUpdaterApiService.compileThemes(themeJobs, (done, total, job) => {
+                        this.progress = job ? this.$t('dh-github-updater.progress.themes', { done: done + 1, total, name: job.name }) : '';
+                    });
+                    if (failed.length > 0) {
+                        warnings.push({ code: 'themeCompileFailed', params: { shops: failed.map((job) => job.name).join(', ') } });
+                    }
+                }
+                this.isWaiting = false;
+                this.progress = '';
             }
 
             warnings.unshift(...await this.dhGithubUpdaterApiService.confirmWarnings(result.warnings));

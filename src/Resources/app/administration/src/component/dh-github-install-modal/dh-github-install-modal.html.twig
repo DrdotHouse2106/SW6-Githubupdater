@@ -14,7 +14,7 @@
         v-if="isWaiting"
         variant="info"
     >
-        {{ $tc('dh-github-updater.install.waiting') }}
+        {{ progress || $tc('dh-github-updater.install.waiting') }}
     </mt-banner>
 
     <div class="dh-github-install-modal__repository">

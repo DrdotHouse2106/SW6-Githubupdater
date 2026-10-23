@@ -91,8 +91,18 @@
             <argument type="service" id="DhGithubUpdater\Config\UpdaterConfig"/>
         </service>
 
+        <service id="DhGithubUpdater\Service\StepwiseLifecycle">
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService"/>
+            <argument type="service" id="plugin.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="logger"/>
+            <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeService" on-invalid="null"/>
+        </service>
+
         <service id="DhGithubUpdater\Controller\GithubUpdaterController" public="true">
             <argument type="service" id="DhGithubUpdater\Service\GithubPluginManager"/>
+            <argument type="service" id="DhGithubUpdater\Service\StepwiseLifecycle"/>
             <argument type="service" id="DhGithubUpdater\Service\UpdateChecker"/>
             <argument type="service" id="DhGithubUpdater\Package\PackageInspector"/>
             <argument type="service" id="DhGithubUpdater\Config\UpdaterConfig"/>

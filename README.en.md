@@ -99,6 +99,10 @@ composer install
 vendor/bin/phpunit
 ```
 
+## Stepwise updates (1.3.0)
+
+Updates and "install and activate" run in steps: first Shopware's lifecycle (migrations, settings) without theme compilation, then the themes are compiled **one sales channel at a time** with progress on the card. This avoids timeouts with many sales channels. Themes are only compiled if the plugin ships storefront files or a theme.
+
 ## Troubleshooting
 
 Known pitfalls from real installations. **Please add new ones** (or open an issue).
@@ -112,6 +116,7 @@ Known pitfalls from real installations. **Please add new ones** (or open an issu
 - **No GitHub section on a plugin card:** intended – it only appears once the plugin is linked. Use the card's "…" menu → "Link with GitHub …".
 - **"Test connection" reports ✗:** the message per check explains the cause (wrong repository/plugin, not in the allow-list, invalid token, rate limit, no releases).
 - **Plugins with Composer dependencies** may fail on hosts without Composer – install the dependency manually in the shop root.
+- **Update ends with "(Timeout)" and the card still shows the old version** (≤ 1.2.4): Shopware compiled the themes of all sales channels in one request. Update the updater to 1.3.0 (stepwise), and finish the stuck update via the card's "Update" button or `bin/console plugin:update <PluginName>` + `cache:clear`.
 
 ## License
 

@@ -33,6 +33,7 @@ Shopware.Component.override('sw-extension-card-base', {
                 updates: null,
                 selectedKey: null,
                 checkedAt: null,
+                progress: '',
             },
         };
     },
@@ -267,38 +268,59 @@ Shopware.Component.override('sw-extension-card-base', {
             try {
                 const result = await this.dhGithubUpdaterApiService.update(this.extension.name, update.ref, update.type);
 
-                // Der eigentliche Plugin-Update-Lebenszyklus (Migrationen etc.) läuft
-                // über den regulären Shopware-Endpunkt in einem neuen Request mit dem neuen Code.
+                // Der eigentliche Plugin-Update-Lebenszyklus (Migrationen etc.) läuft in einer neuen Anfrage
+                // mit dem neuen Code – ohne Themes zu kompilieren; die Themes folgen danach Shop für Shop.
                 const warnings = [];
+                const label = this.extension.label || this.extension.name;
                 if (result.installed) {
+                    let themeJobs = [];
+                    this.dhGithub.progress = this.$tc('dh-github-updater.progress.update');
                     try {
-                        await this.shopwareExtensionService.updateExtension(this.extension.name, 'plugin', false);
+                        themeJobs = (await this.dhGithubUpdaterApiService.lifecycleUpdate(this.extension.name)).themeJobs || [];
                     } catch (error) {
-                        // Meist nur eine Zeitüberschreitung beim Kompilieren der Themes – warten, bis Shopware fertig ist
+                        // Läuft Shopware noch? Bis zu 5 Minuten nachsehen, bevor eine Warnung erscheint
+                        this.dhGithub.progress = this.$tc('dh-github-updater.progress.waiting');
                         const done = await DhGithubUpdaterApiService.waitForPlugin(
                             this.repositoryFactory,
                             this.extension.name,
                             (plugin) => !plugin.upgradeVersion,
+                            300000,
                         );
                         if (!done) {
                             warnings.push({
                                 code: 'updateFailed',
-                                params: { error: DhGithubUpdaterApiService.getErrorMessage(error, this.$tc('dh-github-updater.general.unknownError')) },
+                                params: {
+                                    name: this.extension.name,
+                                    error: DhGithubUpdaterApiService.getErrorMessage(error, this.$tc('dh-github-updater.general.unknownError')),
+                                },
                             });
                         }
                     }
+
+                    if (themeJobs.length > 0) {
+                        const failed = await this.dhGithubUpdaterApiService.compileThemes(themeJobs, (done, total, job) => {
+                            this.dhGithub.progress = job
+                                ? this.$t('dh-github-updater.progress.themes', { done: done + 1, total, name: job.name })
+                                : '';
+                        });
+                        if (failed.length > 0) {
+                            warnings.push({ code: 'themeCompileFailed', params: { shops: failed.map((job) => job.name).join(', ') } });
+                        }
+                    }
+                    this.dhGithub.progress = '';
                 }
 
                 this.createNotificationSuccess({
-                    message: this.$t('dh-github-updater.card.updateSuccess', { name: this.extension.label || this.extension.name }),
+                    message: this.$t('dh-github-updater.card.updateSuccess', { name: label }),
                 });
                 warnings.unshift(...await this.dhGithubUpdaterApiService.confirmWarnings(result.warnings));
-                DhGithubUpdaterApiService.rememberWarnings(this.extension.label || this.extension.name, warnings);
+                DhGithubUpdaterApiService.rememberWarnings(label, warnings);
 
                 this.clearCacheAndReloadPage();
             } catch (error) {
                 this.dhGithubNotifyError(error);
                 this.dhGithub.isBusy = false;
+                this.dhGithub.progress = '';
             }
         },
 

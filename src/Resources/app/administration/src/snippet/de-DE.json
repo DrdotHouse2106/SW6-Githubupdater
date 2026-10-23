@@ -96,7 +96,13 @@
             "missingDependencies": "Benötigt zusätzliche Composer-Pakete: {packages}. Shopware lädt sie beim Installieren automatisch, wenn das Plugin das vorsieht. Nur falls das Plugin danach Fehler meldet (z. B. „Class … not found“ im Log), im Shop-Verzeichnis „composer require {packages}“ ausführen.",
             "activationFailed": "Die Plugin-Dateien wurden abgelegt, aber Shopware konnte das Plugin nicht installieren/aktivieren ({error}). Meist war nur das Kompilieren der Themes zu langsam: Plugin in der Liste über den Schalter aktivieren bzw. „…“ → „Installieren“, sonst per Konsole „plugin:install --activate“. Details im Shopware-Log.",
             "activatedAfterTimeout": "{name} ist installiert und aktiv. Die Rückmeldung von Shopware hat nur länger gedauert (meist wegen des Kompilierens der Themes) – es ist nichts zu tun.",
-            "updateFailed": "Die neuen Dateien sind abgelegt, aber Shopware hat das Update noch nicht abgeschlossen ({error}). Auf der Plugin-Karte „Aktualisieren“ bzw. per Konsole „plugin:update <Name>“ ausführen. Details im Shopware-Log."
+            "updateFailed": "Die neuen Dateien sind abgelegt, aber Shopware hat das Update noch nicht abgeschlossen ({error}). Auf der Plugin-Karte „Aktualisieren“ bzw. per Konsole „plugin:update {name}“ ausführen. Details im Shopware-Log.",
+            "themeCompileFailed": "Das Theme konnte für diese Shops nicht kompiliert werden: {shops}. Bitte unter Inhalte → Themes speichern oder per Konsole „theme:compile“ ausführen."
+        },
+        "progress": {
+            "update": "Shopware aktualisiert das Plugin …",
+            "waiting": "Shopware arbeitet noch – bitte die Seite offen lassen …",
+            "themes": "Themes werden kompiliert: {done} von {total} ({name}) …"
         }
     }
 }

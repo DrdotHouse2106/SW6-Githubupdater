@@ -1,3 +1,10 @@
+# 1.3.0
+- Update und „Installieren und aktivieren“ in Schritten: erst Shopwares Lebenszyklus ohne Theme-Kompilierung, danach die Themes Shop für Shop mit Fortschrittsanzeige („Themes werden kompiliert: 3 von 7 …“) – keine Zeitüberschreitung mehr bei vielen Verkaufskanälen
+- Themes werden nur kompiliert, wenn das Plugin Storefront-Dateien oder ein Theme mitbringt
+- Nach einer Zeitüberschreitung wartet der Updater bis zu 5 Minuten (vorher 90 Sekunden)
+- Hinweis „plugin:update“ nennt jetzt den Plugin-Namen
+- Neue Admin-API-Endpunkte lifecycle/update, lifecycle/activate, compile-theme
+
 # 1.2.4
 - Zeitüberschreitung beim Installieren/Aktualisieren: Der Updater wartet jetzt (bis 90 Sekunden), bis Shopware im Hintergrund fertig ist, und zeigt nur dann eine Warnung, wenn das Plugin danach wirklich nicht aktiv bzw. aktualisiert ist
 - Composer-Pakete werden nach der Installation im Shop nachgeprüft (vendor/composer/installed.json) – der Hinweis erscheint nur noch, wenn ein Paket tatsächlich fehlt

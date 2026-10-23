@@ -164,6 +164,11 @@ beschrieben fortfahren.
    (Repository-Link und installierte Version). Dort „Auf Updates prüfen“ klicken – ist ein
    Update verfügbar, erscheint es hervorgehoben mit dem Button **„Aktualisieren“**.
    Nicht verknüpfte Plugins zeigen keinen GitHub-Bereich.
+   Das Update läuft **in Schritten**: zuerst Shopwares Update (Migrationen, Einstellungen) ohne
+   die Themes, danach werden die Themes **Shop für Shop** kompiliert – die Karte zeigt
+   „Themes werden kompiliert: 3 von 7 (Shopname) …“. So läuft auch bei vielen Verkaufskanälen
+   keine einzelne Anfrage in ein Zeitlimit. Gleiches gilt für „Installieren und aktivieren“.
+   Themes werden nur kompiliert, wenn das Plugin Storefront-Dateien oder ein Theme mitbringt.
 4. **Verknüpfung bearbeiten oder entfernen**: im „…“-Menü über
    „GitHub-Verknüpfung bearbeiten …“ bzw. „GitHub-Verknüpfung entfernen“. Das Entfernen
    löscht nur die Verknüpfung, nicht das Plugin.
@@ -253,6 +258,9 @@ Alle unter `/api/_action/dh-github-updater/` (Admin-API, OAuth):
 | POST | `install` (`repository`, `ref`, `type`) | `system.plugin_maintain`, `system.plugin_upload` |
 | POST | `update/{pluginName}` (`ref`, `type`) | `system.plugin_maintain`, `system.plugin_upload` |
 | POST | `link/{pluginName}` (`repository`, leer = entfernen) | `system.plugin_maintain`, `system.plugin_upload` |
+| POST | `lifecycle/update/{pluginName}` – Shopware-Update ohne Theme-Kompilierung, liefert `themeJobs` | `system.plugin_maintain` |
+| POST | `lifecycle/activate/{pluginName}` – installieren/aktivieren ohne Theme-Kompilierung, liefert `themeJobs` | `system.plugin_maintain` |
+| POST | `compile-theme` (`salesChannelId`, `themeId`) – Theme eines Verkaufskanals kompilieren | `system.plugin_maintain` |
 
 ## Entwicklung
 
@@ -358,11 +366,23 @@ Hier sammeln wir Hürden, die bei Installation und Betrieb tatsächlich aufgetre
 
 **Lösung:** Ab 1.2.4 prüft der Updater nach der Installation selbst, ob die Pakete angekommen sind, und meldet sich nur, wenn wirklich etwas fehlt. Dann im Shop-Verzeichnis `composer require <paket>` ausführen (Fehlerbild sonst z. B. „Class … not found“ im Log)
 
+### Update meldet „Shopware hat das Update noch nicht abgeschlossen (… Timeout)“, Karte zeigt weiter die alte Version
+
+**Ursache:** Bis Version 1.2.4 hat Shopware beim Update in **einer** Anfrage die Themes **aller** Verkaufskanäle kompiliert – und zwar bevor es die neue Version einträgt. Bei mehreren Shops dauert das mehrere Minuten, länger als Browser bzw. PHP warten. Die Dateien liegen dann schon auf dem Server, aber die Datenbank kennt noch die alte Version; die Update-Prüfung meldet deshalb weiter „Version … verfügbar“
+
+**Lösung:** Updater auf 1.3.0 aktualisieren – er aktualisiert in Schritten und kompiliert die Themes Shop für Shop. Ein hängengebliebenes Update abschließen: auf der Plugin-Karte „Aktualisieren“ oder per Konsole bzw. Plesk-Aufgabe (PHP-Skript `httpdocs/bin/console`, „Jetzt ausführen“) mit den Argumenten `plugin:update <PluginName>`, danach `cache:clear`
+
+### „Das Theme konnte für diese Shops nicht kompiliert werden“
+
+**Ursache:** Beim Kompilieren eines Verkaufskanals ist ein Fehler aufgetreten (z. B. SCSS-Fehler eines anderen Plugins, fehlende Schreibrechte in `public/theme`) – das Plugin selbst ist aktualisiert
+
+**Lösung:** Unter *Inhalte → Themes* das Theme des genannten Shops öffnen und speichern, oder per Konsole `theme:compile`. Die Ursache steht im Shopware-Log
+
 ### Installationsfenster zeigt „Shopware richtet das Plugin noch ein …“
 
-**Ursache:** Beim Aktivieren kompiliert Shopware die Themes aller Verkaufskanäle; das dauert länger als die Wartezeit des Browsers
+**Ursache:** Der Updater installiert und aktiviert das Plugin und kompiliert danach die Themes Shop für Shop; der Hinweis zeigt den Fortschritt
 
-**Lösung:** Fenster offen lassen – der Updater fragt alle paar Sekunden nach und meldet Erfolg, sobald das Plugin aktiv ist (bis 90 Sekunden)
+**Lösung:** Fenster offen lassen. Falls Shopware länger braucht, fragt der Updater bis zu 5 Minuten nach, bevor er eine Warnung zeigt
 
 ### Installation endet mit „Unbekannter Fehler“, das Plugin steht aber in der Liste
 
