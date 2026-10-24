@@ -1,4 +1,4 @@
-# DhGithubUpdater – securely install Shopware 6 plugins from GitHub
+# Nova Updater (DhGithubUpdater) – securely install Shopware 6 plugins from GitHub
 
 🇩🇪 [Deutsche Version](README.md)
 

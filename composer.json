@@ -2,7 +2,7 @@
     "name": "drdothouse/dh-github-updater",
     "description": "Installiert und aktualisiert Shopware-6-Plugins sicher direkt aus GitHub-Repositories.",
     "type": "shopware-platform-plugin",
-    "version": "1.3.0",
+    "version": "1.3.1",
     "license": "MIT",
     "authors": [
         {
@@ -19,8 +19,8 @@
     "extra": {
         "shopware-plugin-class": "DhGithubUpdater\\DhGithubUpdater",
         "label": {
-            "de-DE": "GitHub Plugin-Updater",
-            "en-GB": "GitHub plugin updater"
+            "de-DE": "Nova Updater",
+            "en-GB": "Nova Updater"
         },
         "description": {
             "de-DE": "Installiert und aktualisiert Plugins sicher direkt aus GitHub.",

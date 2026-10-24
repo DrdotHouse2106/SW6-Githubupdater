@@ -1,4 +1,4 @@
-# DhGithubUpdater – Shopware-6-Plugins sicher aus GitHub installieren
+# Nova Updater (DhGithubUpdater) – Shopware-6-Plugins sicher aus GitHub installieren
 
 🇬🇧 [English version](README.en.md)
 

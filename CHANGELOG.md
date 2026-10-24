@@ -1,3 +1,7 @@
+# 1.3.1
+- Neuer Anzeigename „Nova Updater“ (technischer Name DhGithubUpdater bleibt – keine Neuinstallation nötig)
+- Katalog: Nova Upload, Anzeigenamen der Nova-Plugins
+
 # 1.3.0
 - Update und „Installieren und aktivieren“ in Schritten: erst Shopwares Lebenszyklus ohne Theme-Kompilierung, danach die Themes Shop für Shop mit Fortschrittsanzeige („Themes werden kompiliert: 3 von 7 …“) – keine Zeitüberschreitung mehr bei vielen Verkaufskanälen
 - Themes werden nur kompiliert, wenn das Plugin Storefront-Dateien oder ein Theme mitbringt

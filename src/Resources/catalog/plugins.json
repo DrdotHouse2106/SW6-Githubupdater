@@ -4,7 +4,7 @@
         {
             "repository": "DrdotHouse2106/SW6-Githubupdater",
             "pluginName": "DhGithubUpdater",
-            "name": "GitHub Plugin-Updater",
+            "name": "Nova Updater",
             "vendor": "DrdotHouse",
             "category": "administration",
             "license": "MIT",
@@ -64,7 +64,7 @@
         {
             "repository": "DrdotHouse2106/SW6-Dynamische-Lieferzeiten",
             "pluginName": "MonthlyDeliveryPlugin",
-            "name": "Dynamische Lieferzeiten",
+            "name": "Nova Lieferzeiten",
             "vendor": "DrdotHouse",
             "category": "shipping",
             "license": "MIT",
