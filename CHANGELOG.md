@@ -1,3 +1,8 @@
+# 1.4.0
+- Neues Plugin-Icon im Nova-Stil (Erweiterungen → Meine Erweiterungen)
+- Repository umbenannt in SW6-Nova-Updater – alte Adresse leitet weiter
+- Katalog: neue Repository-Namen der Nova-Plugins. Verknüpfungen mit dem alten Namen werden automatisch auf den neuen umgestellt (Katalogfeld `formerRepositories`)
+
 # 1.3.1
 - Neuer Anzeigename „Nova Updater“ (technischer Name DhGithubUpdater bleibt – keine Neuinstallation nötig)
 - Katalog: Nova Upload, Anzeigenamen der Nova-Plugins

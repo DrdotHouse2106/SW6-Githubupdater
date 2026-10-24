@@ -11,6 +11,7 @@ final class CatalogEntry
 {
     /**
      * @param array<string, string> $description Sprache (z. B. "de-DE") => Text
+     * @param list<RepositoryReference> $formerRepositories frühere Namen des Repositorys (nach Umbenennung auf GitHub)
      */
     public function __construct(
         public readonly RepositoryReference $repository,
@@ -20,11 +21,12 @@ final class CatalogEntry
         public readonly string $category,
         public readonly ?string $license,
         public readonly array $description,
+        public readonly array $formerRepositories = [],
     ) {
     }
 
     /**
-     * @return array{repository: string, repositoryUrl: string, pluginName: string, name: string, vendor: string, category: string, license: ?string, description: array<string, string>}
+     * @return array{repository: string, repositoryUrl: string, pluginName: string, name: string, vendor: string, category: string, license: ?string, description: array<string, string>, formerRepositories: list<string>}
      */
     public function toArray(): array
     {
@@ -37,6 +39,19 @@ final class CatalogEntry
             'category' => $this->category,
             'license' => $this->license,
             'description' => $this->description,
+            'formerRepositories' => array_map(static fn (RepositoryReference $repository): string => $repository->getFullName(), $this->formerRepositories),
         ];
+    }
+
+    /** Gehört das (ggf. alte) Repository zu diesem Eintrag? */
+    public function isFormerRepository(string $fullName): bool
+    {
+        foreach ($this->formerRepositories as $repository) {
+            if (strtolower($repository->getFullName()) === strtolower($fullName)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

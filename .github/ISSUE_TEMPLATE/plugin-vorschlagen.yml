@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Danke für deinen Vorschlag! Voraussetzungen stehen in der [CONTRIBUTING.md](https://github.com/DrdotHouse2106/SW6-Githubupdater/blob/main/CONTRIBUTING.md).
+        Danke für deinen Vorschlag! Voraussetzungen stehen in der [CONTRIBUTING.md](https://github.com/DrdotHouse2106/SW6-Nova-Updater/blob/main/CONTRIBUTING.md).
         Am schnellsten geht es per Pull Request direkt an `src/Resources/catalog/plugins.json`.
   - type: input
     id: repository

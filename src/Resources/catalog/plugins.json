@@ -2,7 +2,10 @@
     "version": 1,
     "plugins": [
         {
-            "repository": "DrdotHouse2106/SW6-Githubupdater",
+            "repository": "DrdotHouse2106/SW6-Nova-Updater",
+            "formerRepositories": [
+                "DrdotHouse2106/SW6-Githubupdater"
+            ],
             "pluginName": "DhGithubUpdater",
             "name": "Nova Updater",
             "vendor": "DrdotHouse",
@@ -14,7 +17,10 @@
             }
         },
         {
-            "repository": "DrdotHouse2106/SW6-Theme",
+            "repository": "DrdotHouse2106/SW6-Nova-Theme",
+            "formerRepositories": [
+                "DrdotHouse2106/SW6-Theme"
+            ],
             "pluginName": "NovaTheme",
             "name": "Nova Theme",
             "vendor": "DrdotHouse",
@@ -26,7 +32,10 @@
             }
         },
         {
-            "repository": "DrdotHouse2106/SW-6-Google-Tag-Manager",
+            "repository": "DrdotHouse2106/SW6-Nova-Tag-Manager",
+            "formerRepositories": [
+                "DrdotHouse2106/SW-6-Google-Tag-Manager"
+            ],
             "pluginName": "NovaTagManager",
             "name": "Nova Tag Manager",
             "vendor": "DrdotHouse",
@@ -38,7 +47,10 @@
             }
         },
         {
-            "repository": "DrdotHouse2106/SW6-Intelligente-Suche",
+            "repository": "DrdotHouse2106/SW6-Nova-Suche",
+            "formerRepositories": [
+                "DrdotHouse2106/SW6-Intelligente-Suche"
+            ],
             "pluginName": "NovaSearch",
             "name": "Nova Suche",
             "vendor": "DrdotHouse",
@@ -62,7 +74,10 @@
             }
         },
         {
-            "repository": "DrdotHouse2106/SW6-Dynamische-Lieferzeiten",
+            "repository": "DrdotHouse2106/SW6-Nova-Lieferzeiten",
+            "formerRepositories": [
+                "DrdotHouse2106/SW6-Dynamische-Lieferzeiten"
+            ],
             "pluginName": "MonthlyDeliveryPlugin",
             "name": "Nova Lieferzeiten",
             "vendor": "DrdotHouse",
@@ -74,9 +89,12 @@
             }
         },
         {
-            "repository": "DrdotHouse2106/SW6-Fahrzeugauswahl",
+            "repository": "DrdotHouse2106/SW6-Nova-Fahrzeugauswahl",
+            "formerRepositories": [
+                "DrdotHouse2106/SW6-Fahrzeugauswahl"
+            ],
             "pluginName": "FahrzeugSchnellauswahl",
-            "name": "Fahrzeug-Schnellauswahl",
+            "name": "Nova Fahrzeugauswahl",
             "vendor": "Marcel Ulber",
             "category": "storefront",
             "license": "MIT",

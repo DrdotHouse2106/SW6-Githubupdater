@@ -81,7 +81,7 @@ git archive --format=zip --prefix=DhGithubUpdater/ -o DhGithubUpdater.zip HEAD
 
 ```bash
 cd <shopware>/custom/plugins
-git clone https://github.com/DrdotHouse2106/SW6-Githubupdater.git DhGithubUpdater
+git clone https://github.com/DrdotHouse2106/SW6-Nova-Updater.git DhGithubUpdater
 cd <shopware>
 bin/console plugin:refresh
 bin/console plugin:install --activate DhGithubUpdater
@@ -142,8 +142,8 @@ anschließend wieder aus der Git-Konfiguration entfernen:
 
 ```bash
 cd <shopware>/custom/plugins
-git clone https://<TOKEN>@github.com/DrdotHouse2106/SW6-Githubupdater.git DhGithubUpdater
-git -C DhGithubUpdater remote set-url origin https://github.com/DrdotHouse2106/SW6-Githubupdater.git
+git clone https://<TOKEN>@github.com/DrdotHouse2106/SW6-Nova-Updater.git DhGithubUpdater
+git -C DhGithubUpdater remote set-url origin https://github.com/DrdotHouse2106/SW6-Nova-Updater.git
 ```
 
 oder auf GitHub *Code → Download ZIP* wählen, entpacken und den Ordner als
@@ -317,6 +317,12 @@ Hier sammeln wir Hürden, die bei Installation und Betrieb tatsächlich aufgetre
 **Ursache:** Bei **privaten** Repositories verbrauchen GitHub Actions kostenpflichtige Minuten. Ist im GitHub-Konto keine gültige Zahlungsart hinterlegt oder das Ausgabenlimit auf 0, startet kein einziger Job – auch keine Tests. Bei öffentlichen Repositories sind Actions kostenlos.
 
 **Lösung:** Unter *GitHub → Settings → Billing and plans* die Zahlung/das Ausgabenlimit für Actions prüfen – oder das Repository öffentlich machen. Danach unter *Actions → Release → Run workflow* den Lauf einmal manuell starten.
+
+### Repository wurde auf GitHub umbenannt
+
+**Ursache:** Nach einer Umbenennung (z. B. `SW6-Theme` → `SW6-Nova-Theme`) ist im Shop noch der alte Name gespeichert. GitHub leitet alte Adressen weiter, Updates funktionieren also weiter – im Katalog stand das Plugin aber als „mit anderem Repository verknüpft“
+
+**Lösung:** Ab Version 1.4.0 trägt der Katalog die früheren Namen (`formerRepositories`). Beim Öffnen des Katalogs bzw. der Erweiterungsliste stellt der Updater solche Verknüpfungen automatisch auf den neuen Namen um. Eigene, nicht im Katalog stehende Plugins: unter „Repository verknüpfen“ den neuen Namen eintragen. Ist in der Konfiguration eine Liste erlaubter Repositories gepflegt, dort die neuen Namen ergänzen (oder `DrdotHouse2106/*`)
 
 ### Privates Repository: „nicht gefunden“
 

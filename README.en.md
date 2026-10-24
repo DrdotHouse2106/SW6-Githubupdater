@@ -39,7 +39,7 @@ rewritten from scratch with a focus on security.
 
 ```bash
 cd <shopware>/custom/plugins
-git clone https://github.com/DrdotHouse2106/SW6-Githubupdater.git DhGithubUpdater
+git clone https://github.com/DrdotHouse2106/SW6-Nova-Updater.git DhGithubUpdater
 cd <shopware>
 bin/console plugin:refresh
 bin/console plugin:install --activate DhGithubUpdater

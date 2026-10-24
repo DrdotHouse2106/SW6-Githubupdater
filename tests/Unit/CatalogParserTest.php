@@ -58,4 +58,22 @@ class CatalogParserTest extends TestCase
         $this->expectException(GithubUpdaterException::class);
         CatalogParser::parse('{"version": 2, "plugins": []}');
     }
+
+    public function testReadsFormerRepositories(): void
+    {
+        $entries = CatalogParser::parse((string) json_encode(['version' => 1, 'plugins' => [[
+            'repository' => 'owner/New-Name',
+            'formerRepositories' => ['owner/Old-Name', 'kein gültiger Name', 42],
+            'pluginName' => 'MyPlugin',
+            'name' => 'Mein Plugin',
+            'vendor' => 'Ich',
+            'category' => 'other',
+            'description' => ['de-DE' => 'Text'],
+        ]]]));
+
+        static::assertCount(1, $entries);
+        static::assertSame(['owner/Old-Name'], $entries[0]->toArray()['formerRepositories']);
+        static::assertTrue($entries[0]->isFormerRepository('OWNER/old-name'));
+        static::assertFalse($entries[0]->isFormerRepository('owner/New-Name'));
+    }
 }

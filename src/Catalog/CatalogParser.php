@@ -101,6 +101,18 @@ final class CatalogParser
             throw new GithubUpdaterException('"description" benötigt mindestens "de-DE" oder "en-GB"');
         }
 
+        // Frühere Namen nach einer Umbenennung auf GitHub – ungültige werden still übersprungen
+        $former = [];
+        foreach (\is_array($item['formerRepositories'] ?? null) ? \array_slice($item['formerRepositories'], 0, 10) : [] as $name) {
+            if (!\is_string($name)) {
+                continue;
+            }
+            try {
+                $former[] = RepositoryReference::fromFullName($name);
+            } catch (GithubUpdaterException) {
+            }
+        }
+
         return new CatalogEntry(
             $repository,
             $pluginName,
@@ -109,6 +121,7 @@ final class CatalogParser
             $category,
             $license,
             $description,
+            $former,
         );
     }
 

@@ -76,7 +76,7 @@ class GithubPluginManager
         }
 
         $links = [];
-        foreach ($this->sourceLinkStore->all() as $link) {
+        foreach ($this->canonicalLinks($catalog['entries']) as $link) {
             $links[strtolower($link['pluginName'])] = $link['repository'];
         }
 
@@ -339,7 +339,39 @@ class GithubPluginManager
      */
     public function sources(): array
     {
-        return $this->sourceLinkStore->all();
+        try {
+            return $this->canonicalLinks($this->catalogProvider->load()['entries']);
+        } catch (\Throwable) {
+            return $this->sourceLinkStore->all();
+        }
+    }
+
+    /**
+     * Verknüpfungen mit einem früheren Repository-Namen (laut Katalog) auf den neuen Namen umstellen.
+     *
+     * @param list<\DhGithubUpdater\Catalog\CatalogEntry> $entries
+     *
+     * @return list<array{pluginName: string, repository: string, installedRef: ?string, installedRefType: ?string, installedCommit: ?string}>
+     */
+    private function canonicalLinks(array $entries): array
+    {
+        $byPlugin = [];
+        foreach ($entries as $entry) {
+            $byPlugin[strtolower($entry->pluginName)] = $entry;
+        }
+
+        $links = $this->sourceLinkStore->all();
+        foreach ($links as $index => $link) {
+            $entry = $byPlugin[strtolower($link['pluginName'])] ?? null;
+            if ($entry === null || !$entry->isFormerRepository($link['repository'])) {
+                continue;
+            }
+
+            $this->sourceLinkStore->renameRepository($link['pluginName'], $link['repository'], $entry->repository);
+            $links[$index]['repository'] = $entry->repository->getFullName();
+        }
+
+        return $links;
     }
 
     /**

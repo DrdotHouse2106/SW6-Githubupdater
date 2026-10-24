@@ -112,6 +112,25 @@ class SourceLinkStore
         ]);
     }
 
+    /**
+     * Verknüpfung nach einer Umbenennung des Repositorys auf GitHub auf den neuen Namen umstellen.
+     * Installierte Version bleibt erhalten – es ist dasselbe Repository.
+     */
+    public function renameRepository(string $pluginName, string $from, RepositoryReference $to): void
+    {
+        $this->connection->executeStatement(<<<'SQL'
+            UPDATE `dh_github_updater_source` s
+            INNER JOIN `plugin` p ON p.`id` = s.`plugin_id`
+            SET s.`repository` = :to, s.`updated_at` = :now
+            WHERE p.`name` = :name AND LOWER(s.`repository`) = LOWER(:from)
+            SQL, [
+            'to' => $to->getFullName(),
+            'now' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'name' => $pluginName,
+            'from' => $from,
+        ]);
+    }
+
     public function unlink(string $pluginId): void
     {
         $this->connection->executeStatement(

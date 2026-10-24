@@ -11,7 +11,7 @@ spätestens 6 Stunden nach dem Merge – ohne Update des Updaters.
 **Weg 1 – Pull Request (am schnellsten):** Eintrag in `plugins.json` ergänzen und einen
 Pull Request öffnen. Die Tests prüfen den Katalog automatisch.
 
-**Weg 2 – Vorschlag:** [Issue „Plugin vorschlagen“](https://github.com/DrdotHouse2106/SW6-Githubupdater/issues/new?template=plugin-vorschlagen.yml)
+**Weg 2 – Vorschlag:** [Issue „Plugin vorschlagen“](https://github.com/DrdotHouse2106/SW6-Nova-Updater/issues/new?template=plugin-vorschlagen.yml)
 ausfüllen; der Eintrag wird dann übernommen.
 
 ### Aufbau eines Eintrags

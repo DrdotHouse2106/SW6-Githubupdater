@@ -20,7 +20,7 @@ use Psr\Log\LoggerInterface;
  */
 class CatalogProvider
 {
-    public const REPOSITORY = 'DrdotHouse2106/SW6-Githubupdater';
+    public const REPOSITORY = 'DrdotHouse2106/SW6-Nova-Updater';
     public const PATH = 'src/Resources/catalog/plugins.json';
 
     private const CACHE_KEY = 'dh_github_updater_catalog_v1';

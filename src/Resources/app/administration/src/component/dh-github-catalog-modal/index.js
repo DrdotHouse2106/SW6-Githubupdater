@@ -4,8 +4,8 @@ import './dh-github-catalog-modal.scss';
 
 const { Component, Mixin } = Shopware;
 
-export const CONTRIBUTE_URL = 'https://github.com/DrdotHouse2106/SW6-Githubupdater/issues/new?template=plugin-vorschlagen.yml';
-export const CONTRIBUTING_DOC_URL = 'https://github.com/DrdotHouse2106/SW6-Githubupdater/blob/main/CONTRIBUTING.md';
+export const CONTRIBUTE_URL = 'https://github.com/DrdotHouse2106/SW6-Nova-Updater/issues/new?template=plugin-vorschlagen.yml';
+export const CONTRIBUTING_DOC_URL = 'https://github.com/DrdotHouse2106/SW6-Nova-Updater/blob/main/CONTRIBUTING.md';
 
 /**
  * Plugin-Katalog: kuratierte Liste von Shopware-Plugins auf GitHub –
