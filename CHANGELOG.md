@@ -1,3 +1,8 @@
+# 1.6.0
+- Neu: **„Was ist neu?“** – auf der Plugin-Karte neben „Aktualisieren“ zeigt ein Fenster die Release-Notizen aller Versionen zwischen der installierten und der gewählten Version (mit „Jetzt aktualisieren“)
+- Nach einem Update öffnet sich das Fenster automatisch mit den Änderungen von der alten zur neuen Version
+- Release-Notizen kommen aus den GitHub-Releases; Markdown wird sicher dargestellt (keine Skripte, nur https-Links)
+
 # 1.5.0
 - Neu: Knopf **„Nach Updates suchen“** oben in *Erweiterungen → Meine Erweiterungen* – prüft alle verknüpften Plugins sofort, meldet gefundene Updates (bzw. „Alles aktuell“) und aktualisiert die Plugin-Karten ohne Neuladen
 

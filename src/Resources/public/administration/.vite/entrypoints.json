@@ -3,11 +3,11 @@
   "entryPoints": {
     "dh-github-updater": {
       "css": [
-        "/bundles/dhgithubupdater/administration/assets/dh-github-updater-56Xgn7Mt.css"
+        "/bundles/dhgithubupdater/administration/assets/dh-github-updater-rlpzdwsm.css"
       ],
       "dynamic": [],
       "js": [
-        "/bundles/dhgithubupdater/administration/assets/dh-github-updater-B3ImTC-q.js"
+        "/bundles/dhgithubupdater/administration/assets/dh-github-updater-b_ERdS98.js"
       ],
       "legacy": false,
       "preload": []

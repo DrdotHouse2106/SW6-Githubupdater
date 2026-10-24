@@ -1,6 +1,7 @@
 import './service/dh-github-updater-api.service';
 import './component/dh-github-install-modal';
 import './component/dh-github-catalog-modal';
+import './component/dh-github-changelog-modal';
 import './extension/sw-extension-my-extensions-index';
 import './extension/sw-extension-card-base';
 

@@ -110,6 +110,15 @@
             "upToDate": "Everything up to date – {count} linked plugin checked | Everything up to date – {count} linked plugins checked",
             "failedTitle": "{count} plugin could not be checked | {count} plugins could not be checked",
             "error": "The update check failed. See the Shopware log for details."
+        },
+        "changelog": {
+            "link": "What's new?",
+            "titleBefore": "What's new? – changes up to the selected version",
+            "titleAfter": "Updated – here's what's new",
+            "empty": "No release notes found for these versions.",
+            "noNotes": "There are no notes for this version.",
+            "loadError": "The release notes could not be loaded from GitHub.",
+            "updateNow": "Update now"
         }
     }
 }

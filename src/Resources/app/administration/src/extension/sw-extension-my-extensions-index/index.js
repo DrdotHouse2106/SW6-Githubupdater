@@ -14,6 +14,7 @@ Shopware.Component.override('sw-extension-my-extensions-index', {
             showDhGithubCatalogModal: false,
             dhGithubInstallRepository: '',
             dhGithubCheckingAll: false,
+            dhGithubChangelogAfter: [],
         };
     },
 
@@ -28,6 +29,12 @@ Shopware.Component.override('sw-extension-my-extensions-index', {
     created() {
         // Hinweise aus einer Installation/Aktualisierung vor dem Neuladen der Seite.
         // Kurz warten: Direkt nach dem Neuladen ist die Sprache der Administration evtl. noch nicht gesetzt.
+        // „Was ist neu?“ zu den eben aktualisierten Plugins
+        const changelog = DhGithubUpdaterApiService.takeChangelog();
+        if (changelog.length > 0) {
+            window.setTimeout(() => { this.dhGithubChangelogAfter = changelog; }, 1200);
+        }
+
         const stored = DhGithubUpdaterApiService.takeWarnings();
         if (stored.length > 0) {
             window.setTimeout(() => this.dhGithubShowStoredWarnings(stored), 1500);

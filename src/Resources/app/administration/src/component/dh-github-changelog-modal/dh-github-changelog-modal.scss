@@ -1,0 +1,70 @@
+.dh-github-changelog-modal__plugin + .dh-github-changelog-modal__plugin {
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid var(--color-border-primary-default, #d1d9e0);
+}
+
+.dh-github-changelog-modal__plugin-title {
+    margin-bottom: 12px;
+    font-size: 16px;
+}
+
+.dh-github-changelog-modal__range {
+    margin-left: 8px;
+    color: var(--color-text-secondary-default, #52667a);
+    font-size: 13px;
+    font-weight: 400;
+}
+
+.dh-github-changelog-modal__release {
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    border-radius: 6px;
+    background: var(--color-background-secondary-default, #f9fafb);
+}
+
+.dh-github-changelog-modal__release-head {
+    display: flex;
+    gap: 12px;
+    align-items: baseline;
+    margin-bottom: 6px;
+    font-size: 13px;
+
+    span {
+        color: var(--color-text-secondary-default, #52667a);
+    }
+
+    a {
+        margin-left: auto;
+    }
+}
+
+.dh-github-changelog-modal__body {
+    font-size: 14px;
+    line-height: 1.55;
+
+    ul {
+        margin: 0 0 6px;
+        padding-left: 20px;
+    }
+
+    li + li {
+        margin-top: 4px;
+    }
+
+    p {
+        margin: 0 0 6px;
+    }
+
+    code {
+        padding: 1px 4px;
+        border-radius: 3px;
+        background: rgba(0, 0, 0, 0.06);
+        font-size: 12px;
+    }
+}
+
+.dh-github-changelog-modal__empty {
+    color: var(--color-text-secondary-default, #52667a);
+    font-size: 13px;
+}

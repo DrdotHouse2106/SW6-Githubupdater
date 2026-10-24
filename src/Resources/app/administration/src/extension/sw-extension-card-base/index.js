@@ -22,6 +22,7 @@ Shopware.Component.override('sw-extension-card-base', {
     data() {
         return {
             dhGithub: {
+                showChangelog: false,
                 loaded: false,
                 repository: null,
                 installedRef: null,
@@ -94,6 +95,17 @@ Shopware.Component.override('sw-extension-card-base', {
             return this.$t('dh-github-updater.card.lastChecked', {
                 date: new Date(this.dhGithub.checkedAt * 1000).toLocaleString(),
             });
+        },
+
+        dhGithubChangelogEntries() {
+            const update = this.dhGithubSelectedUpdate;
+
+            return [{
+                pluginName: this.extension.name,
+                label: this.extension.label || this.extension.name,
+                from: this.extension.version,
+                to: update ? (update.version || update.ref) : null,
+            }];
         },
 
         dhGithubSelectedUpdate() {
@@ -326,6 +338,14 @@ Shopware.Component.override('sw-extension-card-base', {
                 });
                 warnings.unshift(...await this.dhGithubUpdaterApiService.confirmWarnings(result.warnings));
                 DhGithubUpdaterApiService.rememberWarnings(label, warnings);
+                if (update.type !== 'branch') {
+                    DhGithubUpdaterApiService.rememberChangelog({
+                        pluginName: this.extension.name,
+                        label,
+                        from: this.extension.version,
+                        to: update.version || update.ref,
+                    });
+                }
 
                 this.clearCacheAndReloadPage();
             } catch (error) {

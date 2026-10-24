@@ -173,4 +173,21 @@ class GithubApiClientTest extends TestCase
             static::assertStringContainsString('GitHub-Token', $e->getMessage());
         }
     }
+
+    public function testListsReleaseNotesWithoutDrafts(): void
+    {
+        $client = new GithubApiClient(new MockHttpClient(static fn () => new MockResponse((string) json_encode([
+            ['tag_name' => 'v1.2.0', 'name' => 'Plugin 1.2.0', 'body' => "- Neu: A\n- Fix: B", 'published_at' => '2026-10-24T08:00:00Z', 'html_url' => 'https://github.com/owner/repo/releases/tag/v1.2.0'],
+            ['tag_name' => 'v1.3.0', 'draft' => true, 'body' => 'Entwurf'],
+            ['tag_name' => '../böse', 'body' => 'x'],
+            ['tag_name' => 'v1.1.0', 'body' => null, 'html_url' => 'https://evil.example/x'],
+        ]), ['http_code' => 200])));
+
+        $notes = $client->listReleaseNotes(RepositoryReference::fromFullName('owner/repo'), null);
+
+        static::assertSame(['v1.2.0', 'v1.1.0'], array_column($notes, 'tag'));
+        static::assertSame("- Neu: A\n- Fix: B", $notes[0]['body']);
+        static::assertSame('', $notes[1]['body']);
+        static::assertNull($notes[1]['url'], 'nur Links zu github.com');
+    }
 }

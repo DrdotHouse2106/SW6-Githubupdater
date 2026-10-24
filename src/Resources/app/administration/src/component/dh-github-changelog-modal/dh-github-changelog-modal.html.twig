@@ -1,0 +1,64 @@
+{% block dh_github_changelog_modal %}
+<sw-modal
+    class="dh-github-changelog-modal"
+    :title="title"
+    :is-loading="isLoading"
+    variant="large"
+    @modal-close="$emit('modal-close')"
+>
+    <div
+        v-for="section in sections"
+        :key="section.pluginName"
+        class="dh-github-changelog-modal__plugin"
+    >
+        <h3 class="dh-github-changelog-modal__plugin-title">
+            {{ section.label || section.pluginName }}
+            <span v-if="section.from || section.to" class="dh-github-changelog-modal__range">
+                {{ section.from }}<template v-if="section.to"> → {{ section.to }}</template>
+            </span>
+        </h3>
+
+        <p v-if="section.error" class="dh-github-changelog-modal__empty">{{ section.error }}</p>
+        <p v-else-if="section.releases.length === 0" class="dh-github-changelog-modal__empty">
+            {{ $tc('dh-github-updater.changelog.empty') }}
+        </p>
+
+        <div
+            v-for="release in section.releases"
+            :key="release.tag"
+            class="dh-github-changelog-modal__release"
+        >
+            <div class="dh-github-changelog-modal__release-head">
+                <strong>{{ release.version }}</strong>
+                <span>{{ date(release.publishedAt) }}</span>
+                <a
+                    v-if="release.url"
+                    :href="release.url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >GitHub</a>
+            </div>
+            <div
+                v-if="release.body"
+                class="dh-github-changelog-modal__body"
+                v-html="render(release.body)"
+            ></div>
+            <p v-else class="dh-github-changelog-modal__empty">{{ $tc('dh-github-updater.changelog.noNotes') }}</p>
+        </div>
+    </div>
+
+    <template #modal-footer>
+        <mt-button size="small" variant="secondary" @click="$emit('modal-close')">
+            {{ $tc('global.default.close') }}
+        </mt-button>
+        <mt-button
+            v-if="mode === 'before'"
+            size="small"
+            variant="primary"
+            @click="$emit('update')"
+        >
+            {{ $tc('dh-github-updater.changelog.updateNow') }}
+        </mt-button>
+    </template>
+</sw-modal>
+{% endblock %}

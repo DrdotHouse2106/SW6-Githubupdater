@@ -170,6 +170,39 @@ class GithubApiClient
     }
 
     /**
+     * Release-Notizen veröffentlichter Releases (neueste zuerst) – für „Was ist neu?“.
+     *
+     * @return list<array{tag: string, name: string, body: string, publishedAt: ?string, url: ?string}>
+     */
+    public function listReleaseNotes(RepositoryReference $repository, ?string $token): array
+    {
+        $data = $this->getJson($repository->getApiPath() . '/releases?per_page=' . self::MAX_RELEASES, $token);
+
+        $result = [];
+        foreach ($data as $release) {
+            if (!\is_array($release) || ($release['draft'] ?? false) === true) {
+                continue;
+            }
+
+            $tag = $release['tag_name'] ?? null;
+            if (!\is_string($tag) || !GitRef::isValidName($tag)) {
+                continue;
+            }
+
+            $url = \is_string($release['html_url'] ?? null) && str_starts_with($release['html_url'], 'https://github.com/') ? $release['html_url'] : null;
+            $result[] = [
+                'tag' => $tag,
+                'name' => \is_string($release['name'] ?? null) ? mb_substr($release['name'], 0, 200) : $tag,
+                'body' => \is_string($release['body'] ?? null) ? mb_substr(trim($release['body']), 0, 20000) : '',
+                'publishedAt' => \is_string($release['published_at'] ?? null) ? $release['published_at'] : null,
+                'url' => $url,
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
      * Lädt das ZIP-Archiv eines Commits herunter und schreibt es nach $targetFile.
      */
     public function downloadZipball(RepositoryReference $repository, string $commitSha, string $targetFile, int $maxBytes, ?string $token): void

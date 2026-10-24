@@ -1,5 +1,6 @@
 const ApiService = Shopware.Classes.ApiService;
 const WARNINGS_KEY = 'dh-github-updater-warnings';
+const CHANGELOG_KEY = 'dh-github-updater-changelog';
 
 /**
  * Zugriff auf die Admin-API-Endpunkte des GitHub-Updaters.
@@ -51,6 +52,24 @@ class DhGithubUpdaterApiService extends ApiService {
         }
 
         return this.updateStatusPromise;
+    }
+
+    getChangelog(pluginName, from = null, to = null) {
+        const params = {};
+        if (from) {
+            params.from = from;
+        }
+        if (to) {
+            params.to = to;
+        }
+
+        return this.httpClient
+            .get(`${this.getApiBasePath()}/changelog/${encodeURIComponent(pluginName)}`, {
+                params,
+                headers: this.getBasicHeaders(),
+                timeout: 30000,
+            })
+            .then(ApiService.handleResponse);
     }
 
     getVersions(repository) {
@@ -256,6 +275,30 @@ class DhGithubUpdaterApiService extends ApiService {
             window.sessionStorage.setItem(WARNINGS_KEY, JSON.stringify(stored));
         } catch {
             // sessionStorage nicht verfügbar – Hinweise entfallen
+        }
+    }
+
+    /**
+     * „Was ist neu?“ nach einem Update: überlebt das Neuladen der Seite.
+     */
+    static rememberChangelog(entry) {
+        try {
+            const stored = JSON.parse(window.sessionStorage.getItem(CHANGELOG_KEY) || '[]');
+            stored.push(entry);
+            window.sessionStorage.setItem(CHANGELOG_KEY, JSON.stringify(stored));
+        } catch {
+            // sessionStorage nicht verfügbar – Hinweis entfällt
+        }
+    }
+
+    static takeChangelog() {
+        try {
+            const stored = JSON.parse(window.sessionStorage.getItem(CHANGELOG_KEY) || '[]');
+            window.sessionStorage.removeItem(CHANGELOG_KEY);
+
+            return Array.isArray(stored) ? stored : [];
+        } catch {
+            return [];
         }
     }
 

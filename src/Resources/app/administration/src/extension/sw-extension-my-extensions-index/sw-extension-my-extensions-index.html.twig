@@ -36,6 +36,12 @@
         @modal-close="showDhGithubCatalogModal = false"
     />
 
+    <dh-github-changelog-modal
+        v-if="dhGithubChangelogAfter.length > 0"
+        :entries="dhGithubChangelogAfter"
+        @modal-close="dhGithubChangelogAfter = []"
+    />
+
     <dh-github-install-modal
         v-if="showDhGithubInstallModal"
         :initial-repository="dhGithubInstallRepository"

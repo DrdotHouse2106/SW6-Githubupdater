@@ -297,6 +297,47 @@ class GithubPluginManager
         ];
     }
 
+    /**
+     * Release-Notizen zwischen zwei Versionen: alles nach $from bis einschließlich $to
+     * (ohne $from: ab der installierten Version, ohne $to: bis zur neuesten).
+     *
+     * @return array{pluginName: string, repository: string, from: ?string, to: ?string, releases: list<array{version: string, tag: string, name: string, body: string, publishedAt: ?string, url: ?string}>}
+     */
+    public function changelog(string $pluginName, ?string $from, ?string $to, Context $context): array
+    {
+        $plugin = $this->requirePlugin($pluginName, $context);
+        $link = $this->sourceLinkStore->findByPluginName($plugin->getName());
+        if ($link === null) {
+            throw new GithubUpdaterException('Für dieses Plugin ist kein GitHub-Repository hinterlegt.', 404);
+        }
+
+        $this->config->getAllowList()->assertAllowed($link['repository']);
+        $from = $from !== null && $from !== '' ? $from : $plugin->getVersion();
+
+        $releases = [];
+        foreach ($this->client->listReleaseNotes($link['repository'], $this->config->getToken()) as $release) {
+            $version = ltrim($release['tag'], 'vV');
+            if ((CompatibilityChecker::compare($version, $from) ?? -1) <= 0) {
+                continue;
+            }
+            if ($to !== null && $to !== '' && (CompatibilityChecker::compare($version, $to) ?? 1) > 0) {
+                continue;
+            }
+
+            $releases[] = ['version' => $version] + $release;
+        }
+
+        usort($releases, static fn (array $a, array $b): int => CompatibilityChecker::compare($b['version'], $a['version']) ?? 0);
+
+        return [
+            'pluginName' => $plugin->getName(),
+            'repository' => $link['repository']->getFullName(),
+            'from' => $from,
+            'to' => $to !== '' ? $to : null,
+            'releases' => \array_slice($releases, 0, 30),
+        ];
+    }
+
     public function link(string $pluginName, ?string $repositoryInput, Context $context): ?string
     {
         $plugin = $this->requirePlugin($pluginName, $context);

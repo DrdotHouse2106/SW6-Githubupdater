@@ -110,6 +110,15 @@
             "upToDate": "Alles aktuell – {count} verknüpftes Plugin geprüft | Alles aktuell – {count} verknüpfte Plugins geprüft",
             "failedTitle": "{count} Plugin konnte nicht geprüft werden | {count} Plugins konnten nicht geprüft werden",
             "error": "Die Update-Prüfung ist fehlgeschlagen. Details stehen im Shopware-Log."
+        },
+        "changelog": {
+            "link": "Was ist neu?",
+            "titleBefore": "Was ist neu? – Änderungen bis zur gewählten Version",
+            "titleAfter": "Aktualisiert – das ist neu",
+            "empty": "Keine Release-Notizen für diese Versionen gefunden.",
+            "noNotes": "Zu dieser Version gibt es keine Notizen.",
+            "loadError": "Die Release-Notizen konnten nicht von GitHub geladen werden.",
+            "updateNow": "Jetzt aktualisieren"
         }
     }
 }

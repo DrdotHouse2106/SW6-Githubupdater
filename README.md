@@ -164,6 +164,8 @@ beschrieben fortfahren.
    (Repository-Link und installierte Version). Dort „Auf Updates prüfen“ klicken – ist ein
    Update verfügbar, erscheint es hervorgehoben mit dem Button **„Aktualisieren“**.
    Nicht verknüpfte Plugins zeigen keinen GitHub-Bereich.
+   **„Was ist neu?“** neben „Aktualisieren“ zeigt die Release-Notizen aller Versionen bis zur gewählten;
+   nach dem Update öffnet sich dieselbe Übersicht automatisch.
    **Alle auf einmal:** oben in *Meine Erweiterungen* **„Nach Updates suchen“** – prüft sofort alle
    verknüpften Plugins, meldet gefundene Updates (oder „Alles aktuell“) und zeigt sie auf den Karten.
    Das Update läuft **in Schritten**: zuerst Shopwares Update (Migrationen, Einstellungen) ohne
@@ -319,6 +321,12 @@ Hier sammeln wir Hürden, die bei Installation und Betrieb tatsächlich aufgetre
 **Ursache:** Bei **privaten** Repositories verbrauchen GitHub Actions kostenpflichtige Minuten. Ist im GitHub-Konto keine gültige Zahlungsart hinterlegt oder das Ausgabenlimit auf 0, startet kein einziger Job – auch keine Tests. Bei öffentlichen Repositories sind Actions kostenlos.
 
 **Lösung:** Unter *GitHub → Settings → Billing and plans* die Zahlung/das Ausgabenlimit für Actions prüfen – oder das Repository öffentlich machen. Danach unter *Actions → Release → Run workflow* den Lauf einmal manuell starten.
+
+### „Was ist neu?“ zeigt keine Notizen
+
+**Ursache:** Die Releases auf GitHub haben keinen Beschreibungstext, oder das Repository ist privat und es ist kein Token hinterlegt
+
+**Lösung:** Beim Release einen Text eintragen – die Release-Action der Nova-Plugins übernimmt dafür automatisch den Abschnitt der Version aus `CHANGELOG_de-DE.md` bzw. `CHANGELOG.md`. Für private Repositories den GitHub-Token in der Plugin-Konfiguration setzen
 
 ### Repository wurde auf GitHub umbenannt
 

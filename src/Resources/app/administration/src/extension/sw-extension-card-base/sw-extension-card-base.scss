@@ -56,6 +56,11 @@
         color: var(--color-text-primary-default, #1c1c1c);
     }
 
+    .dh-github-updater-card__changelog {
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
     .dh-github-updater-card__update-label {
         font-weight: 600;
         color: var(--color-emerald-700, #0b7a43);

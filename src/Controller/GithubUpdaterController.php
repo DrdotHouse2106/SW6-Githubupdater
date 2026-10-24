@@ -110,6 +110,20 @@ class GithubUpdaterController
         return $this->handle($context, false, fn (): array => $this->manager->check($pluginName, $context));
     }
 
+    /**
+     * Release-Notizen („Was ist neu?“) – vor einem Update oder danach.
+     */
+    #[Route(path: '/api/_action/dh-github-updater/changelog/{pluginName}', name: 'api.action.dh_github_updater.changelog', requirements: ['pluginName' => '[A-Za-z][A-Za-z0-9_]{0,99}'], methods: ['GET'])]
+    public function changelog(string $pluginName, Request $request, Context $context): JsonResponse
+    {
+        return $this->handle($context, false, fn (): array => $this->manager->changelog(
+            $pluginName,
+            $request->query->has('from') ? $request->query->getString('from') : null,
+            $request->query->has('to') ? $request->query->getString('to') : null,
+            $context,
+        ));
+    }
+
     #[Route(path: '/api/_action/dh-github-updater/install', name: 'api.action.dh_github_updater.install', defaults: ['_acl' => ['system.plugin_maintain', 'system.plugin_upload']], methods: ['POST'])]
     public function install(Request $request, Context $context): JsonResponse
     {

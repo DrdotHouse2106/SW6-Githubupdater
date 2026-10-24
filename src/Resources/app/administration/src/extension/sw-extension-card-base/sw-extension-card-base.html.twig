@@ -49,6 +49,18 @@
             >
                 {{ $tc('dh-github-updater.card.update') }}
             </mt-button>
+            <a
+                href="#"
+                class="dh-github-updater-card__changelog"
+                @click.prevent="dhGithub.showChangelog = true"
+            >{{ $tc('dh-github-updater.changelog.link') }}</a>
+            <dh-github-changelog-modal
+                v-if="dhGithub.showChangelog"
+                mode="before"
+                :entries="dhGithubChangelogEntries"
+                @update="dhGithub.showChangelog = false; dhGithubUpdate()"
+                @modal-close="dhGithub.showChangelog = false"
+            />
         </div>
 
         <p

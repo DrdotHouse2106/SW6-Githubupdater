@@ -89,6 +89,7 @@ from the remote afterwards, or download the ZIP from GitHub and upload the folde
 - **Install:** Extensions → My extensions → "Install from GitHub".
 - **Link existing plugins** (any plugin, including Store plugins): plugin card → "…" menu → "Link with GitHub …", enter the repository URL, optionally click **"Test connection"**, then save.
 - **Update:** linked plugins show a compact GitHub section on the card (repository link, installed version, "Check for updates" / "Update").
+- **What's new?** next to "Update" shows the release notes of all versions up to the selected one; after an update the same overview opens automatically.
 - **Check all at once:** "Check for updates" at the top of *My extensions* checks every linked plugin immediately and shows the result on the cards.
 - **Test connection** runs server-side, read-only, and reports per check: input, allowed repositories, access (not found / private without token, invalid token, rate limit), plugin (composer.json, name/class match), releases, compatible versions for the running Shopware version.
 - Edit or remove the link via the "…" menu.
