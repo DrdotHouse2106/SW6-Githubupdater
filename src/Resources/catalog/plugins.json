@@ -78,11 +78,11 @@
             "pluginName": "NovaTwoFactor",
             "name": "Nova 2FA",
             "vendor": "DrdotHouse",
-            "category": "storefront",
+            "category": "administration",
             "license": "MIT",
             "description": {
-                "de-DE": "Zwei-Faktor-Anmeldung per Authenticator-App für Kundenkonten – QR-Code, Wiederherstellungscodes, Sperre nach Fehlversuchen. Schützt den Download-Bereich von Nova Upload.",
-                "en-GB": "Two-factor login with an authenticator app for customer accounts – QR setup, recovery codes, lockout. Protects the Nova Upload download area."
+                "de-DE": "Zwei-Faktor-Anmeldung per Authenticator-App für die Administration und optional für Kundenkonten – QR-Code, Wiederherstellungscodes, Sperre nach Fehlversuchen.",
+                "en-GB": "Two-factor login with an authenticator app for the administration and optionally for customer accounts – QR setup, recovery codes, lockout."
             }
         },
         {
