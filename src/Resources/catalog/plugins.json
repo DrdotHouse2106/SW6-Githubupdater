@@ -50,6 +50,18 @@
             }
         },
         {
+            "repository": "DrdotHouse2106/SW6-Nova-Upload",
+            "pluginName": "NovaUpload",
+            "name": "Nova Upload",
+            "vendor": "DrdotHouse",
+            "category": "storefront",
+            "license": "MIT",
+            "description": {
+                "de-DE": "Datei-Uploads im Kontaktformular und bei Artikeln (z. B. Logo) – geschützt im Shop gespeichert, nur in der Administration abrufbar, automatisch gelöscht.",
+                "en-GB": "File uploads in the contact form and on products (e.g. logo) – stored protected in the shop, only accessible in the administration, deleted automatically."
+            }
+        },
+        {
             "repository": "DrdotHouse2106/SW6-Dynamische-Lieferzeiten",
             "pluginName": "MonthlyDeliveryPlugin",
             "name": "Dynamische Lieferzeiten",
