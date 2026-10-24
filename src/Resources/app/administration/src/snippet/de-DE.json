@@ -103,6 +103,13 @@
             "update": "Shopware aktualisiert das Plugin …",
             "waiting": "Shopware arbeitet noch – bitte die Seite offen lassen …",
             "themes": "Themes werden kompiliert: {done} von {total} ({name}) …"
+        },
+        "checkAll": {
+            "button": "Nach Updates suchen",
+            "updatesTitle": "{count} Update gefunden | {count} Updates gefunden",
+            "upToDate": "Alles aktuell – {count} verknüpftes Plugin geprüft | Alles aktuell – {count} verknüpfte Plugins geprüft",
+            "failedTitle": "{count} Plugin konnte nicht geprüft werden | {count} Plugins konnten nicht geprüft werden",
+            "error": "Die Update-Prüfung ist fehlgeschlagen. Details stehen im Shopware-Log."
         }
     }
 }

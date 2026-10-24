@@ -164,6 +164,8 @@ beschrieben fortfahren.
    (Repository-Link und installierte Version). Dort „Auf Updates prüfen“ klicken – ist ein
    Update verfügbar, erscheint es hervorgehoben mit dem Button **„Aktualisieren“**.
    Nicht verknüpfte Plugins zeigen keinen GitHub-Bereich.
+   **Alle auf einmal:** oben in *Meine Erweiterungen* **„Nach Updates suchen“** – prüft sofort alle
+   verknüpften Plugins, meldet gefundene Updates (oder „Alles aktuell“) und zeigt sie auf den Karten.
    Das Update läuft **in Schritten**: zuerst Shopwares Update (Migrationen, Einstellungen) ohne
    die Themes, danach werden die Themes **Shop für Shop** kompiliert – die Karte zeigt
    „Themes werden kompiliert: 3 von 7 (Shopname) …“. So läuft auch bei vielen Verkaufskanälen

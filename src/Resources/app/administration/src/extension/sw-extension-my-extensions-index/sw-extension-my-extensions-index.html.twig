@@ -3,6 +3,17 @@
 
     <mt-button
         v-if="dhGithubUpdaterAllowed"
+        class="dh-github-updater__check-all-button"
+        variant="secondary"
+        :is-loading="dhGithubCheckingAll"
+        :disabled="dhGithubCheckingAll"
+        @click="dhGithubCheckAll"
+    >
+        {{ $tc('dh-github-updater.checkAll.button') }}
+    </mt-button>
+
+    <mt-button
+        v-if="dhGithubUpdaterAllowed"
         class="dh-github-updater__catalog-button"
         variant="secondary"
         @click="showDhGithubCatalogModal = true"

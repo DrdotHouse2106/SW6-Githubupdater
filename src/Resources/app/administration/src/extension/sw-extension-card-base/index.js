@@ -104,10 +104,16 @@ Shopware.Component.override('sw-extension-card-base', {
 
     created() {
         this.dhGithubLoadSource();
+        this.dhGithubOnStatusRefreshed = () => this.dhGithubLoadSource(true, true);
+        window.addEventListener(DhGithubUpdaterApiService.STATUS_EVENT, this.dhGithubOnStatusRefreshed);
+    },
+
+    beforeUnmount() {
+        window.removeEventListener(DhGithubUpdaterApiService.STATUS_EVENT, this.dhGithubOnStatusRefreshed);
     },
 
     methods: {
-        async dhGithubLoadSource(force = false) {
+        async dhGithubLoadSource(force = false, resetUpdates = false) {
             if (!this.dhGithubAllowed) {
                 return;
             }
@@ -117,6 +123,11 @@ Shopware.Component.override('sw-extension-card-base', {
                 const source = result.sources.find((entry) => entry.pluginName === this.extension.name);
                 this.dhGithub.repository = source?.repository ?? null;
                 this.dhGithub.installedRef = source?.installedRef ?? null;
+
+                if (resetUpdates) {
+                    this.dhGithub.updates = null;
+                    this.dhGithub.selectedKey = null;
+                }
 
                 if (this.dhGithub.repository) {
                     this.dhGithubLoadUpdateStatus();

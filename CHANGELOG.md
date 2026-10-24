@@ -1,3 +1,6 @@
+# 1.5.0
+- Neu: Knopf **„Nach Updates suchen“** oben in *Erweiterungen → Meine Erweiterungen* – prüft alle verknüpften Plugins sofort, meldet gefundene Updates (bzw. „Alles aktuell“) und aktualisiert die Plugin-Karten ohne Neuladen
+
 # 1.4.0
 - Neues Plugin-Icon im Nova-Stil (Erweiterungen → Meine Erweiterungen)
 - Repository umbenannt in SW6-Nova-Updater – alte Adresse leitet weiter

@@ -7,6 +7,9 @@ const WARNINGS_KEY = 'dh-github-updater-warnings';
  * übernimmt die Administration selbst.
  */
 class DhGithubUpdaterApiService extends ApiService {
+    /** Wird nach „Nach Updates suchen“ ausgelöst – die Plugin-Karten laden dann ihren Status neu */
+    static STATUS_EVENT = 'dh-github-updater:status-refreshed';
+
     constructor(httpClient, loginService, apiEndpoint = '_action/dh-github-updater') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'dhGithubUpdaterApiService';

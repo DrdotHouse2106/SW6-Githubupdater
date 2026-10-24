@@ -103,6 +103,13 @@
             "update": "Shopware is updating the plugin …",
             "waiting": "Shopware is still working – please keep this page open …",
             "themes": "Compiling themes: {done} of {total} ({name}) …"
+        },
+        "checkAll": {
+            "button": "Check for updates",
+            "updatesTitle": "{count} update found | {count} updates found",
+            "upToDate": "Everything up to date – {count} linked plugin checked | Everything up to date – {count} linked plugins checked",
+            "failedTitle": "{count} plugin could not be checked | {count} plugins could not be checked",
+            "error": "The update check failed. See the Shopware log for details."
         }
     }
 }
